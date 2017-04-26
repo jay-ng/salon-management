@@ -37,31 +37,27 @@ public class Main {
             String password = scanner.nextLine();
             System.out.println();
 
+            // Get String Digest with SHA256
             String digest = utils.sha256(password);
 
-            String loginSql = "SELECT username FROM users WHERE username ='" + username + "';";
-            String passwordSql = "SELECT password FROM users WHERE username ='" + username + "';";
-            String returnLogin = "";
-            String returnPassword = "";
+            // Construct Query for login process
+            // Function return 1|0 (true|false)
+            String loginCheckSQL = "SELECT f_loginCheck('" + username + "','" + digest + "');";
+            Boolean matched = false;
             try {
-                ResultSet rsLogin = dbi.executeStatement(loginSql);
+                ResultSet rsLogin = dbi.executeStatement(loginCheckSQL);
                 rsLogin.next();
-                ResultSet rsPassword = dbi.executeStatement(passwordSql);
-                rsPassword.next();
-                ResultSetMetaData metaLogin = rsLogin.getMetaData();
-                ResultSetMetaData metaPassword = rsPassword.getMetaData();
-                returnLogin = rsLogin.getString(1);
-                returnPassword = rsPassword.getString(1);
+                matched = rsLogin.getBoolean(1);
             } catch (SQLException e) {
                 System.out.println("SQLException: " + e);
             }
 
-            if (returnLogin.equals(username) && returnPassword.equals(digest)) {
+            if (matched) {
                 success = true;
+                // TODO: Create a view with all information related to this username
             } else {
-                System.out.println("Login failed for " + username);
+                System.out.println("-> Login failed for " + username + ". Please check your username and password.\n-> If problem persists, please contact administrator.");
             }
-
         }
 
         System.out.println("Welcome " + username + "!!!");
