@@ -1,7 +1,7 @@
 use cmsc508;
 
 CREATE TABLE employees (
-	employee_id NUMERIC(6) PRIMARY KEY,
+	employee_id INT not null PRIMARY KEY AUTO_INCREMENT,
     name VARCHAR(50) not null,
     dob DATE not null,
     ssn CHAR(11) not null,
@@ -9,61 +9,63 @@ CREATE TABLE employees (
     yearToDatePay NUMERIC(6));
     
 CREATE TABLE customers (
-	name VARCHAR(50),
-    phoneNumber NUMERIC(10),
-    stylistID NUMERIC(6) references employees(employee_id),
+	name VARCHAR(50) not null,
+    phoneNumber CHAR(12) not null,
+    stylistID INT not null references employees(employee_id),
     primary key (name, phoneNumber));
     
 CREATE TABLE users (
-	username VARCHAR(24) primary key,
-    password VARCHAR(30),
-    isManager bool,
-    employee_id NUMERIC(6) references employees(employee_id));
+	username VARCHAR(24) not null primary key,
+    password CHAR(64) not null,
+    isManager bool not null,
+    employee_id INT not null references employees(employee_id));
 
 CREATE TABLE employeePhones (
-	employee_id NUMERIC(6) references employees(employee_id),
-    phoneNumber NUMERIC(10),
+	employee_id INT not null references employees(employee_id),
+    phoneNumber VARCHAR(40) not null,
     primary key (employee_id, phoneNumber));
 
 CREATE TABLE employeeAddress (
-	employee_id NUMERIC(6) references employees(employee_id),
-    address VARCHAR(50),
+	employee_id INT not null references employees(employee_id),
+    address VARCHAR(50) not null,
     primary key (employee_id, address));
     
 CREATE TABLE services (
-	name VARCHAR(50) primary key,
+	name VARCHAR(50) not null primary key,
     price NUMERIC(5) not null,
-    time NUMERIC(3) not null);
+    time NUMERIC(2) not null);
     
 CREATE TABLE serviceDone (
-	employee_id NUMERIC(6) references employees(employee_id),
-    service VARCHAR(50) references services(name),
-    count numeric(6),
+	employee_id INT not null references employees(employee_id),
+    service VARCHAR(50) not null references services(name),
+    count numeric(6) not null,
     primary key (employee_id, service));
 
 CREATE TABLE product (
-	product_code VARCHAR(6) primary key,
+	product_code INT not null primary key auto_increment,
     name VARCHAR(50) not null,
     type VARCHAR(30) not null,
-    amount NUMERIC(5),
+    amount NUMERIC(5) not null,
     price NUMERIC(6) not null);
     
 CREATE TABLE appointment (
-	employee_id NUMERIC(6) references employees(employee_id),
-    startTime NUMERIC(2),
-    endTime NUMERIC(2),
-    service VARCHAR(50) references services(name),
-    customer_name VARCHAR(50) references customers(name),
+	employee_id INT not null references employees(employee_id),
+    startTime NUMERIC(2) not null,
+    endTime NUMERIC(2) not null,
+    date DATE not null,
+    service VARCHAR(50) not null references services(name),
+    customer_name VARCHAR(50) not null references customers(name),
     primary key (employee_id, startTime));
-    
+
 CREATE TABLE orders (
-	orderNumber NUMERIC(7) primary key,
+	orderNumber INT not null auto_increment,
     orderDate DATE not null,
-    customer_name VARCHAR(50) references customers(name),
-    customer_phone NUMERIC(10) references customers(phoneNumber),
-    employee_id NUMERIC(6) references employees(employee_id),
-    product_code VARCHAR(6) references product(product_code),
-    amount NUMERIC(1));
+    customer_name VARCHAR(50) not null references customers(name),
+    customer_phone CHAR(12) not null references customers(phoneNumber),
+    employee_id INT not null references employees(employee_id),
+    product_code INT not null references product(product_code),
+    amount NUMERIC(1) not null,
+    primary key (orderNumber, product_code));
 
 DROP TABLE employees;
 DROP TABLE appointment;
@@ -72,5 +74,6 @@ DROP TABLE employeePhones;
 DROP TABLE employeeAddress;
 DROP TABLE customers;
 DROP TABLE serviceDone;
+DROP TABLE services;
 DROP TABLE product;
 DROP TABLE orders;
