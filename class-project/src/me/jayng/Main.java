@@ -75,14 +75,7 @@ public class Main {
 				} catch (SQLException e) {
 					System.out.println("SQLException: " + e.getMessage());
 				}
-				// show employee information
-				String showEmployee = "SELECT *  from employees where employee_id = " + eid + ";"; // TODO: function to hide SQL struct
-				try{
-					ResultSet rsShow = dbi.executeStatement(showEmployee);
-					rsShow.next();
-				} catch (SQLException e){
-					System.out.println("SQLException: " + e.getMessage());
-				}
+				viewSingleEmployee(eid); // function to view one employee comes in handy here 
             } else {
                 System.out.println("-> Login failed for " + username + ". Please check your username and password.\n-> If problem persists, please contact administrator.");
             }
@@ -119,8 +112,31 @@ public class Main {
 					System.out.println("1. View all employees");
 					System.out.println("2. Add an employee");
 					System.out.println("3. Delete an employee");
-					//int innerOption = scanner.nextInt();
+					int innerOption = scanner.nextInt();
 					// To do: add sql statements to view, add, delete
+					switch (innerOption) {
+						case 1:
+						//View all employees
+						System.out.println("All employees:");
+						viewAllEmployees();
+						break;
+						
+						case 2:
+						//Add an employee
+						addAnEmployee();
+						break;
+						
+						case 3:
+						//Delete an employee
+						System.out.println("Enter the id of the employee you want to delete: ");
+						int dID = scanner.nextInt();
+						deleteAnEmployee(dID);
+						break;
+						
+						default:
+						System.out.println("Invalid option.");
+						break;
+					}
 					break;
 				case 2:
 					System.out.println("1. View all appointments");
@@ -140,6 +156,8 @@ public class Main {
 					break;
 				case 4:
 					// sql view customers
+					System.out.println("All customers: ");
+					viewAllCustomers();
 					break;
 				case 5:
 					System.out.println("1. View services");
@@ -164,7 +182,8 @@ public class Main {
 
 			switch (option) {
 				case 1:
-					// sql view
+					//View employee info if not manager
+					viewSingleEmployee(eid);
 					break;
 				case 2:
 					System.out.println("1. View all appointments");
@@ -176,6 +195,8 @@ public class Main {
 					break;
 				case 3:
 					// sql view
+					System.out.println("My customers: ");
+					viewYourCustomers(eid);
 					break;
 				case 4:
 					System.out.println("1. View all offered services");
@@ -191,16 +212,135 @@ public class Main {
 		}
 	}
 
+	//Manager's view
 	public static void viewAllEmployees() {
-		// TODO: Implementation
+		String viewEmployees = "CALL view_all_emp();";
+		try {
+			ResultSet rsView = dbi.executeStatement(viewEmployees);
+			while(rsView.next()){
+				int id = rsView.getInt(1);
+				String name = rsView.getString(2);
+				String dob = rsView.getDate(3).toString();
+				String ssn = rsView.getString(4);
+				double period = rsView.getDouble(5);
+				double ytd = rsView.getDouble(6);
+				String address = rsView.getString(7);
+				String phone = rsView.getString(8);
+				System.out.printf("%d %5s %5s %5s %5f %5f %5s %5s \n", id, name, dob, ssn, period, ytd, address, phone);
+			}
+		} catch (SQLException e) {
+			System.out.println("SQLException: " + e.getMessage());
+		}
 	}
 
+	//Employee's view
+	public static void viewSingleEmployee(int id){
+		String viewOneEmployee = "CALL view_an_employee(" + id + ");";
+		try {
+			ResultSet rsView = dbi.executeStatement(viewOneEmployee);
+			while(rsView.next()){
+				int id = rsView.getInt(1);
+				String name = rsView.getString(2);
+				String dob = rsView.getDate(3).toString();
+				String ssn = rsView.getString(4);
+				double period = rsView.getDouble(5);
+				double ytd = rsView.getDouble(6);
+				String address = rsView.getString(7);
+				String phone = rsView.getString(8);
+				System.out.printf("%d %5s %5s %5s %5f %5f %5s %5s \n", id, name, dob, ssn, period, ytd, address, phone);
+			}
+		} catch (SQLException e) {
+			System.out.println("SQLException: " + e.getMessage());
+		}
+	}
+	
+	//Insert an employee
 	public static void addAnEmployee() {
-		// TODO: Implementation
+		System.out.println("Employee's ID: ");
+		int id = scanner.nextInt();
+		
+		System.out.println("Employee's name: ");
+		String name = scanner.next();
+		
+		System.out.println("Employee's date of birth (format YYYYMMDD): ");
+		String dob = scanner.next();
+		
+		System.out.println("Employee's SSN: ");
+		String ssn = scanner.next();
+		
+		System.out.println("Employee's address: ");
+		String address = scanner.next();
+		
+		System.out.println("Employee's phone number: ");
+		String phone = scanner.next();
+		
+		System.out.println("Employee's username: ");
+		String user = scanner.next();
+		
+		System.out.println("Employee's password: ");
+		String pw = scanner.next();
+		String digest = utils.sha256(pw);
+		
+		System.out.println("Is this employee a manager? (y for yes, otherwise no) ");
+		String man = scanner.next();
+		int manager = 0;
+		if(man.equalsIgnoreCase("y")){
+			manager = 1;
+		}
+		
+		// sql statement
+		String insert = "CALL insert_emp(" + id + ", '" + name + "', '" + dob + "', '" + ssn + "', '" 
+		+ address + "', '" + phone + "', '" + user + "', '" + digest + "', " + manager + ");";
+		
+		try {
+			dbi.executeStatement(insert);
+			System.out.println("Inserted an employee");
+		}
+		catch (SQLException e) {
+			System.out.println("SQLException: " + e.getMessage());
+		}
 	}
 
-	public static void deleteAnEmployee() {
-		// TODO: Implementation
+	//Delete an employee
+	public static void deleteAnEmployee(int dID) {
+		String deleteEmp = "CALL delete_an_emp(" + dID + ");";
+		try{
+			dbi.executeStatement(deleteEmp);
+			System.out.println("Deleted employee "+ dID);
+		} catch (SQLException e) {
+			System.out.println("SQLException: " + e.getMessage());
+		}
+	}
+	
+	// View all customers
+	public static void viewAllCustomers(){
+		String allCustomers = "CALL view_all_customers();";
+		try {
+			ResultSet rsView = dbi.executeStatement(allCustomers);
+			while(rsView.next()){
+				String cust = rsView.getString(1);
+				String phone = rsView.getString(2);
+				int sid = rsView.getInt(3);
+				System.out.printf("%s %5s %5d \n", cust, phone, sid);
+			}
+		} catch (SQLException e) {
+			System.out.println("SQLException: " + e.getMessage());
+		}	
+	}
+	
+	// View your customers
+	public static void viewYourCustomers(int id){
+		String customers = "CALL view_customers(" + id + ");";
+		try {
+			ResultSet rsView = dbi.executeStatement(customers);
+			while(rsView.next()){
+				String cust = rsView.getString(1);
+				String phone = rsView.getString(2);
+				System.out.printf("%s %5s \n", cust, phone);
+			}
+		} catch (SQLException e) {
+			System.out.println("SQLException: " + e.getMessage());
+		}
 	}
 
 	public static void viewAllAppointment() {
