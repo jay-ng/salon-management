@@ -360,19 +360,87 @@ public class Main {
 	}
 
 	public static void viewAllProduct() {
-		// TODO: Implementation
+		String products = "CALL view_products();";
+		try {
+			ResultSet rsView = dbi.executeStatement(products);
+			while(rsView.next()){
+				int code = rsView.getInt(1);
+				String name = rsView.getString(2);
+				String type = rsView.getString(3);
+				int amount = rsView.getInt(4);
+				int price = rsView.getInt(5);
+				System.out.printf("%d %5s %5s %5d %5d \n", code, name, type, amount, price);
+			}
+		} catch (SQLException e) {
+			System.out.println("SQLException: " + e.getMessage());
+		}
 	}
 
 	public static void addAProduct() {
-		// TODO: Implementation
+		System.out.println("Enter product code: ");
+		int code = scanner.nextInt();
+		
+		System.out.println("Enter product name: ");
+		String name = scanner.next();
+		
+		System.out.println("Enter product type: ");
+		Sring type = scanner.next();
+		
+		System.out.println("Enter product amount: ");
+		int amount = scanner.nextInt();
+		
+		System.out.println("Enter product price: ");
+		int price = scanner.nextInt();
+		
+		String addProduct = "CALL add_product(" + code +", '" + name + "', '" + type + "', " + amount + ", " +  price + ");";
+		try {
+			dbi.executeStatement(addProduct);
+			System.out.println("Product added.");
+		}
+		catch (SQLException e) {
+			System.out.println("SQLException: " + e.getMessage());
+		}
+		
 	}
 
 	public static void editAProduct() {
-		// TODO: Implementation
+		System.out.println("Edit a product.");
+		System.out.println("Enter product code: ");
+		int code = scanner.nextInt();
+		
+		System.out.println("Enter product new name: ");
+		String name = scanner.next();
+		
+		System.out.println("Enter product new type: ");
+		Sring type = scanner.next();
+		
+		System.out.println("Enter product new amount: ");
+		int amount = scanner.nextInt();
+		
+		System.out.println("Enter product new price: ");
+		int price = scanner.nextInt();
+		
+		String editProduct = "CALL add_product(" + code +", '" + name + "', '" + type + "', " + amount + ", " +  price + ");";
+		try {
+			dbi.executeStatement(editProduct);
+			System.out.println("Edited the product.");
+		}
+		catch (SQLException e) {
+			System.out.println("SQLException: " + e.getMessage());
+		}
 	}
 
 	public static void deleteAProduct() {
-		// TODO: Implementation
+		System.out.println("Enter product code to delete: ");
+		int code = scanner.nextInt();
+		String deleteProduct = "CALL delete_product(" + code + ");";
+		try {
+			dbi.executeStatement(deleteProduct);
+			System.out.println("Deleted the product.");
+		}
+		catch (SQLException e) {
+			System.out.println("SQLException: " + e.getMessage());
+		}
 	}
 
 	public static void viewAllServices() {
