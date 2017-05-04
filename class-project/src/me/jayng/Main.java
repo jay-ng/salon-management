@@ -321,19 +321,8 @@ public class Main {
 
 	public static void viewAllProduct() {
 		String products = "CALL view_products();";
-		try {
-			ResultSet rsView = dbi.executeStatement(products);
-			while(rsView.next()){
-				int code = rsView.getInt(1);
-				String name = rsView.getString(2);
-				String type = rsView.getString(3);
-				int amount = rsView.getInt(4);
-				int price = rsView.getInt(5);
-				System.out.printf("%d %5s %5s %5d %5d \n", code, name, type, amount, price);
-			}
-		} catch (SQLException e) {
-			System.out.println("SQLException: " + e.getMessage());
-		}
+		ResultSet rsView = dbi.executeStatement(products);
+		utils.printResultSet(rsView);
 	}
 
 	public static void addAProduct() {
@@ -353,13 +342,8 @@ public class Main {
 		int price = scanner.nextInt();
 		
 		String addProduct = "CALL add_product(" + code +", '" + name + "', '" + type + "', " + amount + ", " +  price + ");";
-		try {
-			dbi.executeStatement(addProduct);
-			System.out.println("Product added.");
-		}
-		catch (SQLException e) {
-			System.out.println("SQLException: " + e.getMessage());
-		}
+		dbi.executeStatement(addProduct);
+		System.out.println("Product added.");
 		
 	}
 
@@ -381,53 +365,136 @@ public class Main {
 		int price = scanner.nextInt();
 		
 		String editProduct = "CALL add_product(" + code +", '" + name + "', '" + type + "', " + amount + ", " +  price + ");";
-		try {
-			dbi.executeStatement(editProduct);
-			System.out.println("Edited the product.");
-		}
-		catch (SQLException e) {
-			System.out.println("SQLException: " + e.getMessage());
-		}
+		dbi.executeStatement(editProduct);
+		System.out.println("Edited the product.");
+		
 	}
 
 	public static void deleteAProduct() {
 		System.out.println("Enter product code to delete: ");
 		int code = scanner.nextInt();
 		String deleteProduct = "CALL delete_product(" + code + ");";
-		try {
-			dbi.executeStatement(deleteProduct);
-			System.out.println("Deleted the product.");
-		}
-		catch (SQLException e) {
-			System.out.println("SQLException: " + e.getMessage());
-		}
+		dbi.executeStatement(deleteProduct);
+		System.out.println("Deleted the product.");
 	}
 
 	public static void viewAllServices() {
-		// TODO: Implementation
+		String allServices = "CALL view_all_services();";
+		ResultSet rsView = dbi.executeStatement(allServices);
+		utils.printResultSet(rsView);
 	}
 
 	public static void addAService() {
-		// TODO: Implementation
+		System.out.println("Enter service name: ");
+		String name = scanner.next();
+		
+		System.out.println("Enter service price: ");
+		int price = scanner.nextInt();
+		
+		System.out.println("Enter service duration (format HH:MM:SS): ");
+		String time = scanner.next();
+		
+		String addService = "CALL add_service('" + name + "', " + price + ", '" + time "');";
+		dbi.executeStatement(addService);
+		System.out.println("Service added.");
 	}
 
 	public static void editAService() {
-		// TODO: Implementation
+		System.out.println("Enter service name: ");
+		String name = scanner.next();
+		
+		System.out.println("Enter new service price: ");
+		int price = scanner.nextInt();
+		
+		System.out.println("Enter new service duration (format HH:MM:SS): ");
+		String time = scanner.next();
+		
+		String editService = "CALL edit_a_service('" + name + "', " + price + ", '" + time "');";
+		dbi.executeStatement(editService);
+		System.out.println("Service edited.");
 	}
 
 	public static void deleteAService() {
-		// TODO: Implementation
+		System.out.println("Enter service name you want to remove:");
+		String rm = scanner.next();
+		String deleteService = "CALL delete_a_service('" + name + "');";
+		dbi.executeStatement(deleteService);
+		System.out.println("Service deleted")
+	}
+	
+	public static void viewOrders() {
+		//TO DO: implement method
+	}
+	
+	public static void placeOrder() {
+		//TO DO: implement method
+	}
+	
+	public static void editOrder() {
+		//TO DO: implement method
+	}
+	
+	public static void cancelOrder() {
+		//TO DO: implement method
+	}
+	
+	//For manager
+	public static void viewAllEmployeesServiceCounts() {
+		String empSevCount = "CALL view_all_employees_service_counts();";
+		Resultset rsView = dbi.executeStatement(empSevCount);
+		utils.printResultSet(rsView);
 	}
 
-	public static void viewServicesCount() {
-		// TODO: Implementation
+	//For employee
+	public static void viewPersonalServiceCounts(int id) {
+		String pSevCount = "CALL view_personal_counts(" + id + ");";
+		Resultset rsView = dbi.executeStatement(pSevCount);
+		utils.printResultSet(rsView);
 	}
-
+	
+	//For manager
 	public static void addServicesCount() {
-		// TODO: Implementation
+		System.out.println("Enter employee id: ");
+		int id = scanner.nextInt();
+		System.out.println("Enter service name: ");
+		String service = scanner.next();
+		System.out.println("Enter service count: ");
+		int count = scanner.nextInt();
+		
+		String addNewCount = "CALL add_new_count(" + id + ", '" + service + "', " + count + ");";
+		dbi.executeStatement(addNewCount);
+		System.out.println("Added new count for employee " + id);
 	}
 
 	public static void updateServicesCount() {
-		// TODO: Implementation
+		System.out.println("Enter employee id: ");
+		int id = scanner.nextInt();
+		System.out.println("Enter service name: ");
+		String service = scanner.next();
+		System.out.println("Enter new service count: ");
+		int count = scanner.nextInt();
+		
+		String updateCount = "CALL update_count(" + id + ", '" + service + "', " + count + ");";
+		dbi.executeStatement(updateCount);
+		System.out.println("Updated count for employee " + id + ", service " + service);
+	}
+	
+	//For employee
+	//Employees can only add new service with a count of 1 when it is the their first time
+	public static void empAddServiceCount() {
+		System.out.println("Enter service name: ");
+		String service = scanner.next();
+		String newCount = "CALL add_new_count(" + eid + ", '" + service + "', " + 1 + ");";
+		dbi.executeStatement(addNewCount);
+		System.out.println("Added new count for employee " + eid);
+	}
+	//This is called when an employee finishes his/her service, thus count increases by 1
+	public static void empUpdateCount() {
+		System.out.println("Enter service name: ");
+		String service = scanner.next();
+		
+		String empUpdateCount = "CALL update_count_emp_ver(" + eid + ", '" + service + "');";
+		dbi.executeStatement(empUpdateCount);
+		System.out.println("Updated count for employee " + eid + ", service " + service);
 	}
 }
