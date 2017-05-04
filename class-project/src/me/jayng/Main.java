@@ -75,17 +75,20 @@ public class Main {
 				} catch (SQLException e) {
 					System.out.println("SQLException: " + e.getMessage());
 				}
-				viewSingleEmployee(eid); // function to view one employee comes in handy here 
+				viewAllAppointment(); // function to view one employee comes in handy here
             } else {
                 System.out.println("-> Login failed for " + username + ". Please check your username and password.\n-> If problem persists, please contact administrator.");
             }
         }
 
-        System.out.println("Welcome " + username + "!!!");
+        if (isManager) {
+            System.out.println("-> Welcome " + username + ", you have manager permission.");
+        } else {
+            System.out.println("-> Welcome " + username + ", you have employee permission.");
+        }
     }
 
     public static void presentOption() {
-    	System.out.println(isManager);
 		if(isManager){
 			System.out.println("1. Manage Employees");
 			System.out.println("2. Manage Appointments");
@@ -186,10 +189,11 @@ public class Main {
 					viewSingleEmployee(eid);
 					break;
 				case 2:
-					System.out.println("1. View all appointments");
+					System.out.println("1. View today appointments");
 					System.out.println("2. Add an appointment");
 					System.out.println("3. Delete an appointment");
 					System.out.println("4. Edit an appointment");
+                    System.out.println("5. View all appointments up to date");
 					//int innerOption = scanner.nextInt();
 					// sql statements for appointments
 					break;
@@ -215,43 +219,15 @@ public class Main {
 	//Manager's view
 	public static void viewAllEmployees() {
 		String viewEmployees = "CALL view_all_emp();";
-		try {
-			ResultSet rsView = dbi.executeStatement(viewEmployees);
-			while(rsView.next()){
-				int id = rsView.getInt(1);
-				String name = rsView.getString(2);
-				String dob = rsView.getDate(3).toString();
-				String ssn = rsView.getString(4);
-				double period = rsView.getDouble(5);
-				double ytd = rsView.getDouble(6);
-				String address = rsView.getString(7);
-				String phone = rsView.getString(8);
-				System.out.printf("%d %5s %5s %5s %5f %5f %5s %5s \n", id, name, dob, ssn, period, ytd, address, phone);
-			}
-		} catch (SQLException e) {
-			System.out.println("SQLException: " + e.getMessage());
-		}
+        ResultSet rsView = dbi.executeStatement(viewEmployees);
+        Utils.printResultSet(rsView);
 	}
 
 	//Employee's view
 	public static void viewSingleEmployee(int id){
 		String viewOneEmployee = "CALL view_an_employee(" + id + ");";
-		try {
-			ResultSet rsView = dbi.executeStatement(viewOneEmployee);
-			while(rsView.next()){
-				int id = rsView.getInt(1);
-				String name = rsView.getString(2);
-				String dob = rsView.getDate(3).toString();
-				String ssn = rsView.getString(4);
-				double period = rsView.getDouble(5);
-				double ytd = rsView.getDouble(6);
-				String address = rsView.getString(7);
-				String phone = rsView.getString(8);
-				System.out.printf("%d %5s %5s %5s %5f %5f %5s %5s \n", id, name, dob, ssn, period, ytd, address, phone);
-			}
-		} catch (SQLException e) {
-			System.out.println("SQLException: " + e.getMessage());
-		}
+        ResultSet rsView = dbi.executeStatement(viewOneEmployee);
+        Utils.printResultSet(rsView);
 	}
 	
 	//Insert an employee
@@ -291,61 +267,45 @@ public class Main {
 		// sql statement
 		String insert = "CALL insert_emp(" + id + ", '" + name + "', '" + dob + "', '" + ssn + "', '" 
 		+ address + "', '" + phone + "', '" + user + "', '" + digest + "', " + manager + ");";
-		
-		try {
-			dbi.executeStatement(insert);
-			System.out.println("Inserted an employee");
-		}
-		catch (SQLException e) {
-			System.out.println("SQLException: " + e.getMessage());
-		}
+
+        dbi.executeStatement(insert);
+        System.out.println("Inserted an employee");
 	}
 
 	//Delete an employee
 	public static void deleteAnEmployee(int dID) {
 		String deleteEmp = "CALL delete_an_emp(" + dID + ");";
-		try{
-			dbi.executeStatement(deleteEmp);
-			System.out.println("Deleted employee "+ dID);
-		} catch (SQLException e) {
-			System.out.println("SQLException: " + e.getMessage());
-		}
+        dbi.executeStatement(deleteEmp);
+        System.out.println("Deleted employee "+ dID);
 	}
 	
 	// View all customers
 	public static void viewAllCustomers(){
 		String allCustomers = "CALL view_all_customers();";
-		try {
-			ResultSet rsView = dbi.executeStatement(allCustomers);
-			while(rsView.next()){
-				String cust = rsView.getString(1);
-				String phone = rsView.getString(2);
-				int sid = rsView.getInt(3);
-				System.out.printf("%s %5s %5d \n", cust, phone, sid);
-			}
-		} catch (SQLException e) {
-			System.out.println("SQLException: " + e.getMessage());
-		}	
+        ResultSet rsView = dbi.executeStatement(allCustomers);
+        Utils.printResultSet(rsView);
 	}
 	
 	// View your customers
 	public static void viewYourCustomers(int id){
 		String customers = "CALL view_customers(" + id + ");";
-		try {
-			ResultSet rsView = dbi.executeStatement(customers);
-			while(rsView.next()){
-				String cust = rsView.getString(1);
-				String phone = rsView.getString(2);
-				System.out.printf("%s %5s \n", cust, phone);
-			}
-		} catch (SQLException e) {
-			System.out.println("SQLException: " + e.getMessage());
-		}
+        ResultSet rsView = dbi.executeStatement(customers);
+        Utils.printResultSet(rsView);
 	}
 
+	// View All Appointments
 	public static void viewAllAppointment() {
-		// TODO: Implementation
+		String getAptSQL = "CALL view_all_appointments;";
+		ResultSet rsView = dbi.executeStatement(getAptSQL);
+		Utils.printResultSet(rsView);
 	}
+
+	// View Today Appointments (Should be used the most for normal operations)
+	public static void viewTodayAppointment() {
+        String getAptSQL = "CALL view_today_appointments;";
+        ResultSet rsView = dbi.executeStatement(getAptSQL);
+        Utils.printResultSet(rsView);
+    }
 
 	public static void addAnAppointment() {
 		// TODO: Implementation

@@ -33,7 +33,7 @@ CREATE TABLE employeeAddress (
 CREATE TABLE services (
 	name VARCHAR(50) not null primary key,
     price NUMERIC(5) not null,
-    time NUMERIC(2) not null);
+    time TIME not null);
     
 CREATE TABLE serviceDone (
 	employee_id INT not null references employees(employee_id),
@@ -50,12 +50,12 @@ CREATE TABLE product (
     
 CREATE TABLE appointment (
 	employee_id INT not null references employees(employee_id),
-    startTime NUMERIC(2) not null,
-    endTime NUMERIC(2) not null,
+    startTime TIME not null,
+    endTime TIME not null,
     date DATE not null,
     service VARCHAR(50) not null references services(name),
     customer_name VARCHAR(50) not null references customers(name),
-    primary key (employee_id, startTime));
+    primary key (employee_id, startTime, date));
 
 CREATE TABLE orders (
 	orderNumber INT not null auto_increment,

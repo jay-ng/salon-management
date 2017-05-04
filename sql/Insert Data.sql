@@ -34,11 +34,11 @@ INSERT INTO employeeAddress VALUES(4, '333 Cary St., Richmond VA');
 -- TRUNCATE employeeAddress;
 
 DESCRIBE services;
-INSERT INTO services VALUES('Male Hair Cut',15,1);
-INSERT INTO services VALUES('Female Hair Cut',25,2);
-INSERT INTO services VALUES('Highlight',50,4);
-INSERT INTO services VALUES('Single Color Dye',120,6);
-INSERT INTO services VALUES('Shampoo + Blowdry',15,1);
+INSERT INTO services VALUES('Male Hair Cut',15,'00:30');
+INSERT INTO services VALUES('Female Hair Cut',25,'01:00');
+INSERT INTO services VALUES('Highlight',50,'02:00');
+INSERT INTO services VALUES('Single Color Dye',120,'03:00');
+INSERT INTO services VALUES('Shampoo + Blowdry',15,'00:30');
 -- TRUNCATE services;
 
 DESCRIBE serviceDone;
@@ -57,11 +57,13 @@ INSERT INTO product VALUES(null, 'Conditioner A', 'Conditioner', 20, 15);
 -- TRUNCATE product;
 
 DESCRIBE appointment;
-INSERT INTO appointment VALUES(3, 0, 1, '2017-05-10', 'Male Hair Cut', 'Customer A');
-INSERT INTO appointment VALUES(3, 3, 4, '2017-06-05', 'Male Hair Cut', 'Customer A');
-INSERT INTO appointment VALUES(4, 0, 2, '2017-05-10', 'Female Hair Cut', 'Customer B');
-INSERT INTO appointment VALUES(4, 3, 9, '2017-05-10', 'Single Color Dye', 'Customer D');
-INSERT INTO appointment VALUES(4, 9, 13, '2017-05-10', 'Highlight', 'Customer C');
+INSERT INTO appointment VALUES(3, '09:00', '09:30', '2017-05-10', 'Male Hair Cut', 'Customer A');
+INSERT INTO appointment VALUES(3, '10:30', '11:00', '2017-06-05', 'Male Hair Cut', 'Customer A');
+INSERT INTO appointment VALUES(4, '09:00', '10:00', '2017-05-10', 'Female Hair Cut', 'Customer B');
+INSERT INTO appointment VALUES(4, '10:30', '13:30', '2017-05-10', 'Single Color Dye', 'Customer D');
+INSERT INTO appointment VALUES(4, '13:30', '15:30', '2017-05-10', 'Highlight', 'Customer C');
+INSERT INTO appointment VALUES(1, '09:00', '11:00', date_format(sysdate(),'%Y-%m-%d'), 'Highlight', 'Customer C'); -- Test Today
+INSERT INTO appointment VALUES(2, '09:00', '11:00', date_format(sysdate(),'%Y-%m-%d'), 'Highlight', 'Customer D'); -- Test Today
 -- TRUNCATE appointment;
 
 DESCRIBE orders;
