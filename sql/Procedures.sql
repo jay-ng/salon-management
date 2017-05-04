@@ -141,6 +141,17 @@ BEGIN
 END $$
 DELIMITER ;
 
+--End period, update yearToDatePay and reset all counts
+DROP PROCEDURE IF EXISTS end_period;
+DELIMITER $$
+CREATE PROCEDURE end_period()
+    MODIFIES SQL DATA
+BEGIN
+UPDATE employees SET yearToDatePay = IFNULL(yearToDatePay,0) + IFNULL(periodPay,0);
+UPDATE serviceDone SET serviceDone.count = 0;
+END$$
+DELIMITER ;
+
 CALL view_all_emp;
 CALL view_all_appointments;
 CALL view_today_appointments;
