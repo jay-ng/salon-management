@@ -1,9 +1,7 @@
 package me.jayng;
 
-import javax.xml.transform.Result;
 import java.sql.Connection;
 import java.sql.ResultSet;
-import java.sql.ResultSetMetaData;
 import java.sql.SQLException;
 import java.util.Scanner;
 
@@ -84,94 +82,46 @@ public class Main {
 
         if (isManager) {
             System.out.println("-> Welcome " + username + ", you have manager permission.");
+			System.out.println();
         } else {
             System.out.println("-> Welcome " + username + ", you have employee permission.");
+			System.out.println();
         }
     }
 
+	// Present Manager Options
     public static void presentOption() {
-		if(isManager){
+    	if (isManager) {
 			System.out.println("1. Manage Employees");
 			System.out.println("2. Manage Appointments");
 			System.out.println("3. Manage Products and Orders");
 			System.out.println("4. View Customers");
 			System.out.println("5. Services");
+			System.out.println("0. Exit");
 			System.out.println();
 			System.out.print("- Choice: ");
-			int option = -1;
-			boolean inputMismatch = true;
-			while (inputMismatch) {
-				if (!scanner.hasNextInt()) {
-					System.out.println("-> Acceptable Choices Are 1, 2, 3, 4, and 5\n");
-					System.out.print("Choice: ");
-					scanner.next();
-					continue;
-				} else {
-					option = scanner.nextInt();
-				}
-				inputMismatch = false;
-			}
+			int option = Utils.getInput();
 			switch (option) {
 				case 1:
-					System.out.println("1. View all employees");
-					System.out.println("2. Add an employee");
-					System.out.println("3. Delete an employee");
-					int innerOption = scanner.nextInt();
-					// To do: add sql statements to view, add, delete
-					switch (innerOption) {
-						case 1:
-						//View all employees
-						System.out.println("All employees:");
-						viewAllEmployees();
-						break;
-						
-						case 2:
-						//Add an employee
-						addAnEmployee();
-						break;
-						
-						case 3:
-						//Delete an employee
-						System.out.println("Enter the id of the employee you want to delete: ");
-						int dID = scanner.nextInt();
-						deleteAnEmployee(dID);
-						break;
-						
-						default:
-						System.out.println("Invalid option.");
-						break;
-					}
+					presentEmployeeOption();
 					break;
 				case 2:
-					System.out.println("1. View all appointments");
-					System.out.println("2. Add an appointment");
-					System.out.println("3. Edit an appointment");
-					System.out.println("4. Delete an appointment");
-					addAnAppointment();
+					presentAppointmentOption();
 					break;
 				case 3:
-					System.out.println("1. View all products");
-					System.out.println("2. Add a products");
-					System.out.println("3. Edit a product");
-					System.out.println("4. Delete a product");
-					//int innerOption = scanner.nextInt();
-					// sql statements
+					presentProductOption();
 					break;
 				case 4:
 					// sql view customers
 					System.out.println("All customers: ");
 					viewAllCustomers();
+					presentOption();
 					break;
 				case 5:
-					System.out.println("1. View services");
-					System.out.println("2. Add a service");
-					System.out.println("3. Edit a service");
-					System.out.println("4. Delete a service");
-					System.out.println("5. View employees' service counts");
-					System.out.println("6. Update employees' service counts");
-					//int innerOption = scanner.nextInt();
-					// sql statements
+					presentServicesOption();
 					break;
+				case 0:
+					System.exit(1);
 				default:
 					System.out.println("Invalid option.");
 					break;
@@ -181,49 +131,238 @@ public class Main {
 			System.out.println("2. Manage Appointments");
 			System.out.println("3. View your customers");
 			System.out.println("4. Services");
+			System.out.println("0. Exit");
 			System.out.println();
 			System.out.print("- Choice: ");
-			int option = scanner.nextInt();
-
+			int option = Utils.getInput();
 			switch (option) {
 				case 1:
 					//View employee info if not manager
 					viewSingleEmployee(eid);
+					presentOption();
 					break;
 				case 2:
-					System.out.println("1. View today appointments");
-					System.out.println("2. Add an appointment");
-					System.out.println("3. Delete an appointment");
-					System.out.println("4. Edit an appointment");
-                    System.out.println("5. View all appointments up to date");
-					int innerOption = scanner.nextInt();
-					switch (innerOption) {
-                        case 1:
-                            viewTodayAppointment();
-                            break;
-                        case 2:
-                            addAnAppointment();
-                            break;
-                        default:
-                            System.out.println("-> Invalid Option.");
-                    }
-					// sql statements for appointments
+					presentAppointmentOption();
 					break;
 				case 3:
 					// sql view
 					System.out.println("My customers: ");
 					viewYourCustomers(eid);
+					presentOption();
 					break;
 				case 4:
-					System.out.println("1. View all offered services");
-					System.out.println("2. View your service counts");
-					System.out.println("3. Update your service counts");
-					//int innerOption = scanner.nextInt();
-					// sql statements
+					presentServicesOption();
+					break;
+				case 0:
+					System.exit(1);
+				default:
+					System.out.println("Invalid option.");
+					break;
+			}
+		}
+    }
+
+    // Present Employee Option
+    public static void presentEmployeeOption() {
+    	if (isManager) {
+			System.out.println("1. View all employees");
+			System.out.println("2. Add an employee");
+			System.out.println("3. Delete an employee");
+			System.out.println("0. Back");
+			System.out.println();
+			System.out.print("- Choice: ");
+			int option = Utils.getInput();
+			// To do: add sql statements to view, add, delete
+			switch (option) {
+				case 1:
+					//View all employees
+					System.out.println("All employees:");
+					viewAllEmployees();
+					presentEmployeeOption();
+					break;
+
+				case 2:
+					//Add an employee
+					addAnEmployee();
+					presentEmployeeOption();
+					break;
+
+				case 3:
+					//Delete an employee
+					System.out.println("Enter the id of the employee you want to delete: ");
+					int dID = scanner.nextInt();
+					deleteAnEmployee(dID);
+					presentEmployeeOption();
+					break;
+				case 0:
+					presentOption();
 					break;
 				default:
 					System.out.println("Invalid option.");
 					break;
+			}
+		}
+    }
+
+    public static void presentAppointmentOption() {
+    	if (isManager) {
+			System.out.println("1. View today appointments");
+			System.out.println("2. Add an appointment");
+			System.out.println("3. Delete an appointment");
+			System.out.println("4. Edit an appointment");
+			System.out.println("9. View all appointments");
+			System.out.println("0. Back");
+			System.out.println();
+			System.out.print("- Choice: ");
+			int option = Utils.getInput();
+			switch (option) {
+				case 1:
+					viewTodayAppointment();
+					presentAppointmentOption();
+					break;
+				case 2:
+					addAnAppointment();
+					presentAppointmentOption();
+					break;
+				case 0:
+					presentOption();
+					break;
+				default:
+					System.out.println("-> Invalid Option.");
+			}
+		} else {
+			System.out.println("1. View today appointments");
+			System.out.println("2. Add an appointment");
+			System.out.println("3. Delete an appointment");
+			System.out.println("4. Edit an appointment");
+			System.out.println("0. Back");
+			System.out.println();
+			System.out.print("- Choice: ");
+			int option = Utils.getInput();
+			switch (option) {
+				case 1:
+					viewTodayAppointment();
+					presentAppointmentOption();
+					break;
+				case 2:
+					addAnAppointment();
+					presentAppointmentOption();
+					break;
+				case 0:
+					presentOption();
+					break;
+				default:
+					System.out.println("-> Invalid Option.");
+			}
+		}
+		// sql statements for appointments
+	}
+
+	public static void presentProductOption() {
+    	if (isManager) {
+			System.out.println("1. View all products");
+			System.out.println("2. Add a products");
+			System.out.println("3. Edit a product");
+			System.out.println("4. Delete a product");
+			System.out.println("0. Back");
+			System.out.println();
+			System.out.print("- Choice: ");
+			int option = Utils.getInput();
+			switch (option) {
+				case 1:
+					viewAllProduct();
+					presentProductOption();
+					break;
+				case 2:
+					addAProduct();
+					presentProductOption();
+					break;
+				case 3:
+					editAProduct();
+					presentProductOption();
+					break;
+				case 4:
+					deleteAProduct();
+					presentProductOption();
+					break;
+				case 0:
+					presentOption();
+					break;
+				default:
+					System.out.println("-> Invalid Option.");
+			}
+		}
+	}
+
+	public static void presentServicesOption() {
+		if (isManager) {
+			System.out.println("1. View services");
+			System.out.println("2. Add a service");
+			System.out.println("3. Edit a service");
+			System.out.println("4. Delete a service");
+			System.out.println("5. View employees' service counts");
+			System.out.println("6. Update employees' service counts");
+			System.out.println("0. Back");
+			System.out.println();
+			System.out.print("- Choice: ");
+			int option = Utils.getInput();
+			switch (option) {
+				case 1:
+					viewAllServices();
+					presentServicesOption();
+					break;
+				case 2:
+					addAService();
+					presentServicesOption();
+					break;
+				case 3:
+					editAService();
+					presentServicesOption();
+					break;
+				case 4:
+					deleteAService();
+					presentServicesOption();
+					break;
+				case 5:
+					viewAllEmployeesServiceCounts();
+					presentServicesOption();
+					break;
+				case 6:
+					updateServicesCount();
+					presentServicesOption();
+					break;
+				case 0:
+					presentOption();
+					break;
+				default:
+					System.out.println("-> Invalid Option.");
+			}
+		} else {
+			System.out.println("1. View all offered services");
+			System.out.println("2. View your service counts");
+			System.out.println("3. Update your service counts");
+			System.out.println("0. Back");
+			System.out.println();
+			System.out.print("- Choice: ");
+			int option = Utils.getInput();
+			switch (option) {
+				case 1:
+					viewAllServices();
+					presentServicesOption();
+					break;
+				case 2:
+					viewPersonalServiceCounts(eid);
+					presentServicesOption();
+					break;
+				case 3:
+					empUpdateCount();
+					presentServicesOption();
+					break;
+				case 0:
+					presentOption();
+					break;
+				default:
+					System.out.println("-> Invalid Option.");
 			}
 		}
 	}

@@ -38,7 +38,7 @@ public class Utils {
         while (inputMismatch) {
             if (!scanner.hasNextInt()) {
                 System.out.println("-> Input Mismatched. Refer to selectable option above.\n");
-                System.out.print("Choice: ");
+                System.out.print("- Choice: ");
                 scanner.next();
                 continue;
             } else {
