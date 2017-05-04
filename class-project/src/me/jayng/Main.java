@@ -228,6 +228,10 @@ public class Main {
 					deleteAnAppointment();
 					presentAppointmentOption();
 					break;
+				case 9:
+					viewAllAppointment();
+					presentAppointmentOption();
+					break;
 				case 0:
 					presentOption();
 					break;
@@ -527,12 +531,12 @@ public class Main {
 			System.out.print("Please enter start time (Format: HH:MM): ");
 			String startTime = Utils.getTime();
 			try {
-				String delAptCheckSQL = "SELECT f_deleteAptCheck(" + id + "', '" + startTime + "', '" + date + "');";
+				String delAptCheckSQL = "SELECT f_deleteAptCheck(" + id + ", '" + startTime + "', '" + date + "');";
 				ResultSet delAptCheck = dbi.executeStatement(delAptCheckSQL);
 				delAptCheck.next();
 				boolean exists = delAptCheck.getBoolean(1);
 				if (exists) {
-					String deleteAptSQL = "CALL del_emp_appointment(" + id + "', '" + startTime + "', '" + date + "');";
+					String deleteAptSQL = "CALL del_emp_appointment(" + id + ", '" + startTime + "', '" + date + "');";
 					dbi.executeStatement(deleteAptSQL);
 				}
 			} catch (SQLException e) {

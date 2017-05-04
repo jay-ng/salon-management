@@ -84,8 +84,9 @@ DROP FUNCTION IF EXISTS f_deleteAptCheck;
 DELIMITER //
 CREATE FUNCTION f_deleteAptCheck(employee_id INT, startTime TIME, date DATE) RETURNS Bool
 BEGIN
-	DECLARE exist Bool DEFAULT false;
-    SET exist = (SELECT * FROM appointment WHERE appointment.employee_id = employee_id AND appointment.startTime = startTime AND appointment.date = date);
+	DECLARE exist Bool;
+    SET exist = EXISTS (SELECT * FROM appointment WHERE appointment.employee_id = employee_id AND appointment.startTime = startTime AND appointment.date = date);
+    RETURN exist;
 END //
 DELIMITER ;
 
