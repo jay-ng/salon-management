@@ -100,10 +100,10 @@ DELIMITER ;
 -- View an employee appointment
 DROP PROCEDURE IF EXISTS view_emp_appointments;
 DELIMITER $$
-CREATE PROCEDURE view_emp_appointments(IN employee_id INT, IN date DATE)
+CREATE PROCEDURE view_emp_appointments(IN employee_id INT)
 	READS SQL DATA
 BEGIN
-	SELECT * FROM appointment WHERE appointment.employee_id = employee_id AND appointment.date = date;
+	SELECT * FROM appointment WHERE appointment.employee_id = employee_id;
 END $$
 DELIMITER ;
 
@@ -127,9 +127,24 @@ BEGIN
 END $$
 DELIMITER ;
 
+-- Update an appointment
+DROP PROCEDURE IF EXISTS update_emp_appointment;
+DELIMITER $$
+CREATE PROCEDURE update_emp_appointment(IN old_empid INT, IN old_startTime TIME, IN old_date DATE, IN employee_id INT, IN startTime TIME, IN date DATE, IN serviceName VARCHAR(50), IN customerName VARCHAR(50))
+	MODIFIES SQL DATA
+BEGIN
+	DECLARE endTime TIME;
+    SET endTime = (SELECT f_getEndTime(startTime, serviceName));
+	UPDATE appointment
+    SET appointment.employee_id = employee_id, appointment.startTime = startTime, appointment.endTime = endTime, appointment.date = date, appointment.service = serviceName, appointment.customer_name = customerName
+    WHERE appointment.employee_id = old_empid AND appointment.startTime = old_startTime AND appointment.date = old_date;
+END $$
+DELIMITER ;
+
 CALL view_all_emp;
 CALL view_all_appointments;
 CALL view_today_appointments;
 CALL view_emp_appointments(1,'2017-05-03');
 CALL insert_emp('Huy Nguyen', '19920118', '555-55-5555', '312 Broad St.', '123-123-1234', 'huyng', '8d969eef6ecad3c29a3a629280e686cf0c3f5d5a86aff3ca12020c923adc6c92',1);
 CALL delete_an_emp(5);
+CALL update_emp_appointment(3,

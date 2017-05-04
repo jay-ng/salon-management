@@ -228,6 +228,10 @@ public class Main {
 					deleteAnAppointment();
 					presentAppointmentOption();
 					break;
+				case 4:
+					editAnAppointment();
+					presentAppointmentOption();
+					break;
 				case 9:
 					viewAllAppointment();
 					presentAppointmentOption();
@@ -254,6 +258,10 @@ public class Main {
 					break;
 				case 2:
 					addAnAppointment();
+					presentAppointmentOption();
+					break;
+				case 4:
+					editAnAppointment();
 					presentAppointmentOption();
 					break;
 				case 0:
@@ -465,9 +473,7 @@ public class Main {
 
     // View your appointment
     public static void viewYourAppointment() {
-	    System.out.print("Please enter inquiry date (Format: YYYY-MM-DD): ");
-	    String date = Utils.getDate();
-	    String getYourAptSQL = "CALL view_emp_appointments(" + eid + ", '" + date + "');";
+	    String getYourAptSQL = "CALL view_emp_appointments(" + eid + ");";
         ResultSet yourApt = dbi.executeStatement(getYourAptSQL);
 	    Utils.printResultSet(yourApt);
     }
@@ -564,7 +570,63 @@ public class Main {
 	}
 
 	public static void editAnAppointment() {
-		// TODO: Implementation
+		if (isManager) {
+			viewAllAppointment();
+			System.out.print("Please enter employee id: ");
+			int id = Utils.getId();
+			System.out.print("Please enter date (Format: YYYY-MM-DD): ");
+			String date = Utils.getDate();
+			System.out.print("Please enter start time (Format: HH:MM): ");
+			String startTime = Utils.getTime();
+			try {
+				String delAptCheckSQL = "SELECT f_deleteAptCheck(" + id + ", '" + startTime + "', '" + date + "');";
+				ResultSet delAptCheck = dbi.executeStatement(delAptCheckSQL);
+				delAptCheck.next();
+				boolean exists = delAptCheck.getBoolean(1);
+				if (exists) {
+					System.out.print("Please enter new employee for this appointment, enter the same one if not changed: ");
+					int newId = Utils.getId();
+					System.out.print("Please enter new date, enter the same if not changed: ");
+					String newDate = Utils.getDate();
+					System.out.print("Please enter new start time, enter the same if not changed: ");
+					String newStartTime = Utils.getTime();
+					System.out.print("Please enter new service, enter the same if not changed: ");
+					String newService = scanner.next();
+					System.out.print("Please enter new customer name, enter the same if not changed: ");
+					String newCustomer = scanner.next();
+					String updateAptSQL = "CALL update_emp_appointment(" + id + ", '" + startTime + "', '" + date + "', " + newId + ", '" + newStartTime + "', '" + newDate + "', '" + newService + "', '" + newCustomer + "');";
+					dbi.executeStatement(updateAptSQL);
+				}
+			} catch (SQLException e) {
+				System.out.println("SQLException: " + e.getMessage());
+			}
+		} else {
+			viewYourAppointment();
+			System.out.print("Please enter date (Format: YYYY-MM-DD): ");
+			String date = Utils.getDate();
+			System.out.print("Please enter start time (Format: HH:MM): ");
+			String startTime = Utils.getTime();
+			try {
+				String delAptCheckSQL = "SELECT f_deleteAptCheck(" + eid + ", '" + startTime + "', '" + date + "');";
+				ResultSet delAptCheck = dbi.executeStatement(delAptCheckSQL);
+				delAptCheck.next();
+				boolean exists = delAptCheck.getBoolean(1);
+				if (exists) {
+					System.out.print("Please enter new date, enter the same if not changed: ");
+					String newDate = Utils.getDate();
+					System.out.print("Please enter new start time, enter the same if not changed: ");
+					String newStartTime = Utils.getTime();
+					System.out.print("Please enter new service, enter the same if not changed: ");
+					String newService = scanner.next();
+					System.out.print("Please enter new customer name, enter the same if not changed: ");
+					String newCustomer = scanner.next();
+					String updateAptSQL = "CALL update_emp_appointment(" + eid + ", '" + startTime + "', '" + date + "', " + eid + ", '" + newStartTime + "', '" + newDate + "', '" + newService + "', '" + newCustomer + "');";
+					dbi.executeStatement(updateAptSQL);
+				}
+			} catch (SQLException e) {
+				System.out.println("SQLException: " + e.getMessage());
+			}
+		}
 	}
 
 	public static void viewAllProduct() {
