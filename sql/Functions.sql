@@ -77,6 +77,18 @@ BEGIN
 END //
 DELIMITER ;
 
+# f_deleteAptCheck
+# Input: employee_id, startTime, date
+# Output: Bool
+DROP FUNCTION IF EXISTS f_deleteAptCheck;
+DELIMITER //
+CREATE FUNCTION f_deleteAptCheck(employee_id INT, startTime TIME, date DATE) RETURNS Bool
+BEGIN
+	DECLARE exist Bool DEFAULT false;
+    SET exist = (SELECT * FROM appointment WHERE appointment.employee_id = employee_id AND appointment.startTime = startTime AND appointment.date = date);
+END //
+DELIMITER ;
+
 # f_getToday
 # Input:
 # Output: date

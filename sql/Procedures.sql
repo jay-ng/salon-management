@@ -113,10 +113,19 @@ DELIMITER $$
 CREATE PROCEDURE add_emp_appointment(IN employee_id INT, IN startTime TIME, IN endTime TIME, IN date DATE, IN service VARCHAR(50), IN customer_name VARCHAR(50))
 	MODIFIES SQL DATA
 BEGIN
-	INSERT INTO appointment VALUES (employee_id, starTime, endTime, date, service, customer_name);
+	INSERT INTO appointment VALUES (employee_id, startTime, endTime, date, service, customer_name);
 END $$
 DELIMITER ;
 
+-- Delete an appointment
+DROP PROCEDURE IF EXISTS del_emp_appointment;
+DELIMITER $$
+CREATE procedure del_emp_appointment(IN employee_id INT, IN startTime TIME, IN date DATE)
+	MODIFIES SQL DATA
+BEGIN
+	DELETE FROM appointment WHERE appointment.employee_id = employee_id AND appointment.startTime = startTime AND appointment.date = date;
+END $$
+DELIMITER ;
 
 CALL view_all_emp;
 CALL view_all_appointments;

@@ -6,6 +6,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Scanner;
 import java.util.StringJoiner;
+import java.util.regex.Pattern;
 
 /**
  * Created by Jay Ng on 4/25/2017.
@@ -47,6 +48,57 @@ public class Utils {
             inputMismatch = false;
         }
         return option;
+    }
+
+    public static int getId() {
+        int id = -1;
+        boolean inputMismatch = true;
+        while (inputMismatch) {
+            if (!scanner.hasNextInt()) {
+                System.out.println("-> Input Mismatched. Please enter number ID only.\n");
+                System.out.print("- Enter Employee ID: ");
+                scanner.next();
+                continue;
+            } else {
+                id = scanner.nextInt();
+            }
+            inputMismatch = false;
+        }
+        return id;
+    }
+
+    public static String getDate() {
+        String date = "";
+        String datePattern = "\\d{4}-\\d{2}-\\d{2}";
+        boolean inputMismatch = true;
+        date = scanner.next();
+        while (inputMismatch) {
+            if (!date.matches(datePattern)) {
+                System.out.println("-> Input Mismatched. Please enter date in format YYYY-MM-DD.\n");
+                System.out.print("- Enter date: ");
+                date = scanner.next();
+                continue;
+            }
+            inputMismatch = false;
+        }
+        return date;
+    }
+
+    public static String getTime() {
+        String time = "";
+        String timePattern = "\\d{2}:\\d{2}";
+        boolean inputMismatch = true;
+        time = scanner.next();
+        while (inputMismatch) {
+            if (!time.matches(timePattern)) {
+                System.out.println("-> Input Mismatched. Please enter time in format HH:MM.\n");
+                System.out.print("- Enter time: ");
+                time = scanner.next();
+                continue;
+            }
+            inputMismatch = false;
+        }
+        return time;
     }
 
 

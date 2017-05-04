@@ -13,6 +13,7 @@ CREATE TABLE customers (
     phoneNumber CHAR(12) not null,
     stylistID INT not null references employees(employee_id),
     primary key (name, phoneNumber));
+INSERT INTO customers VALUES ('Walk In', '000-000-0000',1);
     
 CREATE TABLE users (
 	username VARCHAR(24) not null primary key,

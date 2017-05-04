@@ -224,6 +224,10 @@ public class Main {
 					addAnAppointment();
 					presentAppointmentOption();
 					break;
+				case 3:
+					deleteAnAppointment();
+					presentAppointmentOption();
+					break;
 				case 0:
 					presentOption();
 					break;
@@ -387,7 +391,7 @@ public class Main {
 		String name = scanner.next();
 		
 		System.out.println("Employee's date of birth (format YYYY-MM-DD): ");
-		String dob = scanner.next();
+		String dob = Utils.getDate();
 		
 		System.out.println("Employee's SSN: ");
 		String ssn = scanner.next();
@@ -403,7 +407,7 @@ public class Main {
 		
 		System.out.println("Employee's password: ");
 		String pw = scanner.next();
-		String digest = utils.sha256(pw);
+		String digest = Utils.sha256(pw);
 		
 		System.out.println("Is this employee a manager? (y for yes, otherwise no) ");
 		String man = scanner.next();
@@ -458,7 +462,7 @@ public class Main {
     // View your appointment
     public static void viewYourAppointment() {
 	    System.out.print("Please enter inquiry date (Format: YYYY-MM-DD): ");
-	    String date = scanner.next();
+	    String date = Utils.getDate();
 	    String getYourAptSQL = "CALL view_emp_appointments(" + eid + ", '" + date + "');";
         ResultSet yourApt = dbi.executeStatement(getYourAptSQL);
 	    Utils.printResultSet(yourApt);
@@ -468,14 +472,14 @@ public class Main {
 	public static void addAnAppointment() {
 		viewAllEmployees();
 		System.out.println("Please enter Employee ID. You can refer to the table above for correct ID: ");
-		int id = scanner.nextInt();
+		int id = Utils.getId();
 		System.out.println("Please enter the date of the appointment (Format YYYY-MM-DD): ");
-		String date = scanner.next();
+		String date = Utils.getDate();
 		String getEmpAptSQL = "CALL view_emp_appointments(" + id + ", '" + date +"');";
         ResultSet empApt = dbi.executeStatement(getEmpAptSQL);
 		Utils.printResultSet(empApt);
 		System.out.println("Please enter start time (Format: HH:MM): ");
-		String startTime = scanner.next();
+		String startTime = Utils.getTime();
 		boolean conflict = true;
 		while (conflict) {
             String aptCheckSQL = "SELECT f_appointmentCheck(" + id + ", '" + date + "', '" + startTime + "');";
@@ -489,7 +493,7 @@ public class Main {
 		        if (conflict) {
 		            System.out.println("-> Employee already have an appointment running at " + startTime + ".");
                     System.out.println("Please reschedule with a new start time (Format: HH:MM): ");
-                    startTime = scanner.next();
+                    startTime = Utils.getTime();
                 }
             } catch (SQLException e) {
 		        System.out.println("SQLException: " + e.getMessage());
@@ -514,7 +518,45 @@ public class Main {
 	}
 
 	public static void deleteAnAppointment() {
-		// TODO: Implementation
+		if (isManager) {
+			viewAllAppointment();
+			System.out.print("Please enter employee id: ");
+			int id = Utils.getId();
+			System.out.print("Please enter date (Format: YYYY-MM-DD): ");
+			String date = Utils.getDate();
+			System.out.print("Please enter start time (Format: HH:MM): ");
+			String startTime = Utils.getTime();
+			try {
+				String delAptCheckSQL = "SELECT f_deleteAptCheck(" + id + "', '" + startTime + "', '" + date + "');";
+				ResultSet delAptCheck = dbi.executeStatement(delAptCheckSQL);
+				delAptCheck.next();
+				boolean exists = delAptCheck.getBoolean(1);
+				if (exists) {
+					String deleteAptSQL = "CALL del_emp_appointment(" + id + "', '" + startTime + "', '" + date + "');";
+					dbi.executeStatement(deleteAptSQL);
+				}
+			} catch (SQLException e) {
+				System.out.println("SQLException: " + e.getMessage());
+			}
+		} else {
+			viewYourAppointment();
+			System.out.print("Please enter date (Format: YYYY-MM-DD): ");
+			String date = Utils.getDate();
+			System.out.print("Please enter start time (Format: HH:MM): ");
+			String startTime = Utils.getTime();
+			try {
+				String delAptCheckSQL = "SELECT f_deleteAptCheck(" + eid + "', '" + startTime + "', '" + date + "');";
+				ResultSet delAptCheck = dbi.executeStatement(delAptCheckSQL);
+				delAptCheck.next();
+				boolean exists = delAptCheck.getBoolean(1);
+				if (exists) {
+					String deleteAptSQL = "CALL del_emp_appointment(" + eid + "', '" + startTime + "', '" + date + "');";
+					dbi.executeStatement(deleteAptSQL);
+				}
+			} catch (SQLException e) {
+				System.out.println("SQLException: " + e.getMessage());
+			}
+		}
 	}
 
 	public static void editAnAppointment() {
@@ -592,8 +634,8 @@ public class Main {
 		System.out.println("Enter service price: ");
 		int price = scanner.nextInt();
 		
-		System.out.println("Enter service duration (format HH:MM:SS): ");
-		String time = scanner.next();
+		System.out.println("Enter service duration (Format HH:MM): ");
+		String time = Utils.getTime();
 		
 		String addService = "CALL add_service('" + name + "', " + price + ", '" + time + "');";
 		dbi.executeStatement(addService);
@@ -607,8 +649,8 @@ public class Main {
 		System.out.println("Enter new service price: ");
 		int price = scanner.nextInt();
 		
-		System.out.println("Enter new service duration (format HH:MM:SS): ");
-		String time = scanner.next();
+		System.out.println("Enter new service duration (format HH:MM): ");
+		String time = Utils.getTime();
 		
 		String editService = "CALL edit_a_service('" + name + "', " + price + ", '" + time + "');";
 		dbi.executeStatement(editService);
@@ -656,7 +698,7 @@ public class Main {
 	//For manager
 	public static void addServicesCount() {
 		System.out.println("Enter employee id: ");
-		int id = scanner.nextInt();
+		int id = Utils.getId();
 		System.out.println("Enter service name: ");
 		String service = scanner.next();
 		System.out.println("Enter service count: ");
@@ -669,7 +711,7 @@ public class Main {
 
 	public static void updateServicesCount() {
 		System.out.println("Enter employee id: ");
-		int id = scanner.nextInt();
+		int id = Utils.getId();
 		System.out.println("Enter service name: ");
 		String service = scanner.next();
 		System.out.println("Enter new service count: ");
