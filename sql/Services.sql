@@ -1,5 +1,5 @@
 DELIMITER $$
-CREATE DEFINER=`cmsc508`@`localhost` PROCEDURE `add_new_count`(IN `id` INT(11), IN `service` VARCHAR(50), IN `count` DECIMAL(5,0))
+CREATE OR REPLACE PROCEDURE add_new_count(IN id INT(11), IN service VARCHAR(50), IN count DECIMAL(5,0))
     MODIFIES SQL DATA
 BEGIN
 INSERT INTO serviceDone
@@ -8,7 +8,7 @@ END$$
 DELIMITER ;
 
 DELIMITER $$
-CREATE DEFINER=`cmsc508`@`localhost` PROCEDURE `update_count_emp_ver`(IN `id` INT(11), IN `service` VARCHAR(50))
+CREATE OR REPLACE PROCEDURE update_count_emp_ver(IN id INT(11), IN service VARCHAR(50))
     MODIFIES SQL DATA
 BEGIN
 UPDATE serviceDone
@@ -19,7 +19,7 @@ END$$
 DELIMITER ;
 
 DELIMITER $$
-CREATE DEFINER=`cmsc508`@`localhost` PROCEDURE `edit_count`(IN `id` INT(11), IN `service` VARCHAR(50), IN `new_count` DECIMAL(5,0))
+CREATE OR REPLACE PROCEDURE edit_count(IN id INT(11), IN service VARCHAR(50), IN new_count DECIMAL(5,0))
     MODIFIES SQL DATA
 BEGIN
 UPDATE serviceDone
@@ -30,7 +30,7 @@ END$$
 DELIMITER ;
 
 DELIMITER $$
-CREATE DEFINER=`cmsc508`@`localhost` PROCEDURE `add_service`(IN `name` VARCHAR(50), IN `price` DECIMAL(5,0), IN `time` TIME)
+CREATE OR REPLACE PROCEDURE add_service(IN name VARCHAR(50), IN price DECIMAL(5,0), IN time TIME)
     MODIFIES SQL DATA
 BEGIN
 INSERT INTO services 
@@ -39,7 +39,7 @@ END$$
 DELIMITER ;
 
 DELIMITER $$
-CREATE DEFINER=`cmsc508`@`localhost` PROCEDURE `edit_a_service`(IN `name` VARCHAR(50), IN `new_price` DECIMAL(5,0), IN `new_time` TIME)
+CREATE OR REPLACE PROCEDURE edit_a_service(IN name VARCHAR(50), IN new_price DECIMAL(5,0), IN new_time TIME)
     MODIFIES SQL DATA
 BEGIN
 UPDATE services
@@ -50,7 +50,7 @@ END$$
 DELIMITER ;
 
 DELIMITER $$
-CREATE DEFINER=`cmsc508`@`localhost` PROCEDURE `view_all_services`()
+CREATE OR REPLACE PROCEDURE view_all_services()
     READS SQL DATA
 BEGIN
 SELECT *
@@ -59,7 +59,7 @@ END$$
 DELIMITER ;
 
 DELIMITER $$
-CREATE DEFINER=`cmsc508`@`localhost` PROCEDURE `delete_a_service`(IN `name` VARCHAR(50))
+CREATE OR REPLACE PROCEDURE delete_a_service(IN name VARCHAR(50))
     MODIFIES SQL DATA
 BEGIN
 DELETE FROM services
@@ -68,7 +68,7 @@ END$$
 DELIMITER ;
 
 DELIMITER $$
-CREATE DEFINER=`cmsc508`@`localhost` PROCEDURE `view_all_employees_service_counts`()
+CREATE OR REPLACE PROCEDURE view_all_employees_service_counts()
     READS SQL DATA
 BEGIN
 SELECT employees.employee_id, employees.name,
@@ -78,7 +78,7 @@ END$$
 DELIMITER ;
 
 DELIMITER $$
-CREATE DEFINER=`cmsc508`@`localhost` PROCEDURE `view_personal_count`(IN `id` INT(11))
+CREATE OR REPLACE PROCEDURE view_personal_count(IN id INT(11))
     READS SQL DATA
 BEGIN
 SELECT employees.employee_id, employees.name,
