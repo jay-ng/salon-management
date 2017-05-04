@@ -1,7 +1,7 @@
 -- Deleting an employee
 DROP PROCEDURE IF EXISTS delete_an_emp;
 DELIMITER $$
-CREATE DEFINER=`cmsc508`@`localhost` PROCEDURE `delete_an_emp`(IN `emp_id` INT(11))
+CREATE PROCEDURE delete_an_emp(IN emp_id INT)
     MODIFIES SQL DATA
 BEGIN
 DELETE FROM employees
@@ -18,7 +18,7 @@ DELIMITER ;
 -- Inserting an employee
 DROP PROCEDURE IF EXISTS insert_emp;
 DELIMITER $$
-CREATE DEFINER=`cmsc508`@`localhost` PROCEDURE `insert_emp`(IN `name` VARCHAR(50), IN `dob` DATE, IN `ssn` CHAR(12), IN `address` VARCHAR(50), IN `phone` VARCHAR(50), IN `usern` VARCHAR(24), IN `pw` CHAR(64), IN `manager` TINYINT(1))
+CREATE PROCEDURE insert_emp(IN name VARCHAR(50), IN dob DATE, IN ssn CHAR(12), IN address VARCHAR(50), IN phone VARCHAR(50), IN usern VARCHAR(24), IN pw CHAR(64), IN manager TINYINT(1))
     MODIFIES SQL DATA
 BEGIN
 INSERT INTO employees(employees.employee_id, employees.name, employees.dob, employees.ssn) 
@@ -36,7 +36,7 @@ DELIMITER ;
 -- View an employee
 DROP PROCEDURE IF EXISTS view_an_employee;
 DELIMITER $$
-CREATE DEFINER=`cmsc508`@`localhost` PROCEDURE `view_an_employee`(IN `employee_id` INT(11))
+CREATE PROCEDURE view_an_employee(IN employee_id INT)
 BEGIN
 SELECT * FROM employees
 NATURAL JOIN employeeAddress
@@ -48,7 +48,7 @@ DELIMITER ;
 -- View all employees
 DROP PROCEDURE IF EXISTS view_all_emp;
 DELIMITER $$
-CREATE DEFINER=`cmsc508`@`localhost` PROCEDURE `view_all_emp`()
+CREATE PROCEDURE view_all_emp()
 BEGIN
 SELECT * FROM employees NATURAL JOIN
 employeeAddress NATURAL JOIN employeePhones;
@@ -58,7 +58,7 @@ DELIMITER ;
 -- View all customers
 DROP PROCEDURE IF EXISTS view_all_customers;
 DELIMITER $$
-CREATE DEFINER=`cmsc508`@`localhost` PROCEDURE `view_all_customers`()
+CREATE PROCEDURE view_all_customers()
 BEGIN
 SELECT * FROM customers;
 END$$
@@ -67,7 +67,7 @@ DELIMITER ;
 -- View customers served by an employee
 DROP PROCEDURE IF EXISTS view_customers;
 DELIMITER $$
-CREATE DEFINER=`cmsc508`@`localhost` PROCEDURE `view_customers`(IN `id` INT(11))
+CREATE PROCEDURE view_customers(IN id INT(11))
 BEGIN
 SELECT * FROM customers
 WHERE stylistID = id;
