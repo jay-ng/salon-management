@@ -1,5 +1,6 @@
 package me.jayng;
 
+import javax.xml.transform.Result;
 import java.sql.Connection;
 import java.sql.ResultSet;
 import java.sql.ResultSetMetaData;
@@ -11,9 +12,10 @@ public class Main {
     public static Utils utils;
     public static DBI dbi = DBI.getInstance();
     public static Connection conn;
-    public static Scanner scanner = new Scanner(System.in);
+    public static Scanner scanner = new Scanner(System.in).useDelimiter("\\n");
 	static int eid;
 	static boolean isManager = false;
+	static String today = "";
 
     public static void main(String[] args) {
 	// write your code here
@@ -146,8 +148,7 @@ public class Main {
 					System.out.println("2. Add an appointment");
 					System.out.println("3. Edit an appointment");
 					System.out.println("4. Delete an appointment");
-					//int innerOption = scanner.nextInt();
-					// sql statements for appointments
+					addAnAppointment();
 					break;
 				case 3:
 					System.out.println("1. View all products");
@@ -181,6 +182,8 @@ public class Main {
 			System.out.println("2. Manage Appointments");
 			System.out.println("3. View your customers");
 			System.out.println("4. Services");
+			System.out.println();
+			System.out.print("- Choice: ");
 			int option = scanner.nextInt();
 
 			switch (option) {
@@ -194,7 +197,17 @@ public class Main {
 					System.out.println("3. Delete an appointment");
 					System.out.println("4. Edit an appointment");
                     System.out.println("5. View all appointments up to date");
-					//int innerOption = scanner.nextInt();
+					int innerOption = scanner.nextInt();
+					switch (innerOption) {
+                        case 1:
+                            viewTodayAppointment();
+                            break;
+                        case 2:
+                            addAnAppointment();
+                            break;
+                        default:
+                            System.out.println("-> Invalid Option.");
+                    }
 					// sql statements for appointments
 					break;
 				case 3:
@@ -232,13 +245,10 @@ public class Main {
 	
 	//Insert an employee
 	public static void addAnEmployee() {
-		System.out.println("Employee's ID: ");
-		int id = scanner.nextInt();
-		
 		System.out.println("Employee's name: ");
 		String name = scanner.next();
 		
-		System.out.println("Employee's date of birth (format YYYYMMDD): ");
+		System.out.println("Employee's date of birth (format YYYY-MM-DD): ");
 		String dob = scanner.next();
 		
 		System.out.println("Employee's SSN: ");
@@ -265,18 +275,18 @@ public class Main {
 		}
 		
 		// sql statement
-		String insert = "CALL insert_emp(" + id + ", '" + name + "', '" + dob + "', '" + ssn + "', '" 
+		String insert = "CALL insert_emp('" + name + "', '" + dob + "', '" + ssn + "', '"
 		+ address + "', '" + phone + "', '" + user + "', '" + digest + "', " + manager + ");";
 
         dbi.executeStatement(insert);
-        System.out.println("Inserted an employee");
+        System.out.println("-> Inserted an employee");
 	}
 
 	//Delete an employee
 	public static void deleteAnEmployee(int dID) {
 		String deleteEmp = "CALL delete_an_emp(" + dID + ");";
         dbi.executeStatement(deleteEmp);
-        System.out.println("Deleted employee "+ dID);
+        System.out.println("-> Deleted employee "+ dID);
 	}
 	
 	// View all customers
@@ -307,8 +317,62 @@ public class Main {
         Utils.printResultSet(rsView);
     }
 
+    // View your appointment
+    public static void viewYourAppointment() {
+	    System.out.print("Please enter inquiry date (Format: YYYY-MM-DD): ");
+	    String date = scanner.next();
+	    String getYourAptSQL = "CALL view_emp_appointments(" + eid + ", '" + date + "');";
+        ResultSet yourApt = dbi.executeStatement(getYourAptSQL);
+	    Utils.printResultSet(yourApt);
+    }
+
+    // Add an appointment for an employee
 	public static void addAnAppointment() {
-		// TODO: Implementation
+		viewAllEmployees();
+		System.out.println("Please enter Employee ID. You can refer to the table above for correct ID: ");
+		int id = scanner.nextInt();
+		System.out.println("Please enter the date of the appointment (Format YYYY-MM-DD): ");
+		String date = scanner.next();
+		String getEmpAptSQL = "CALL view_emp_appointments(" + id + ", '" + date +"');";
+        ResultSet empApt = dbi.executeStatement(getEmpAptSQL);
+		Utils.printResultSet(empApt);
+		System.out.println("Please enter start time (Format: HH:MM): ");
+		String startTime = scanner.next();
+		boolean conflict = true;
+		while (conflict) {
+            String aptCheckSQL = "SELECT f_appointmentCheck(" + id + ", '" + date + "', '" + startTime + "');";
+            try {
+		        ResultSet aptCheck = dbi.executeStatement(aptCheckSQL);
+		        if (aptCheck.next()) {
+                    conflict = aptCheck.getBoolean(1);
+                } else {
+		            conflict = false;
+                }
+		        if (conflict) {
+		            System.out.println("-> Employee already have an appointment running at " + startTime + ".");
+                    System.out.println("Please reschedule with a new start time (Format: HH:MM): ");
+                    startTime = scanner.next();
+                }
+            } catch (SQLException e) {
+		        System.out.println("SQLException: " + e.getMessage());
+            }
+        }
+        System.out.println("Please enter service name: ");
+		String serviceName = scanner.next();
+		System.out.println("Please enter customer name: ");
+		String customerName = scanner.next();
+		String getEndTimeSQL = "SELECT f_getEndTime('" + startTime + "', '" + serviceName + "');";
+		String endTime = "";
+		try {
+		    ResultSet getEndTime = dbi.executeStatement(getEndTimeSQL);
+		    getEndTime.next();
+		    endTime = getEndTime.getString(1);
+        } catch (SQLException e) {
+            System.out.println("SQLException: " + e.getMessage());
+        }
+        String addEmpAptSQL = "CALL add_emp_appointment(" + id + ", '" + startTime + "', '" + endTime + "', '" + date + "', '" + serviceName + "', '" + customerName + "');";
+		dbi.executeStatement(addEmpAptSQL);
+		System.out.println("-> Appointment for " + customerName + " at " + startTime + " on " + date + " Added");
 	}
 
 	public static void deleteAnAppointment() {
@@ -344,7 +408,7 @@ public class Main {
 		String name = scanner.next();
 		
 		System.out.println("Enter product type: ");
-		Sring type = scanner.next();
+		String type = scanner.next();
 		
 		System.out.println("Enter product amount: ");
 		int amount = scanner.nextInt();
@@ -353,13 +417,8 @@ public class Main {
 		int price = scanner.nextInt();
 		
 		String addProduct = "CALL add_product(" + code +", '" + name + "', '" + type + "', " + amount + ", " +  price + ");";
-		try {
-			dbi.executeStatement(addProduct);
-			System.out.println("Product added.");
-		}
-		catch (SQLException e) {
-			System.out.println("SQLException: " + e.getMessage());
-		}
+        dbi.executeStatement(addProduct);
+        System.out.println("Product added.");
 		
 	}
 
@@ -372,7 +431,7 @@ public class Main {
 		String name = scanner.next();
 		
 		System.out.println("Enter product new type: ");
-		Sring type = scanner.next();
+		String type = scanner.next();
 		
 		System.out.println("Enter product new amount: ");
 		int amount = scanner.nextInt();
@@ -381,26 +440,16 @@ public class Main {
 		int price = scanner.nextInt();
 		
 		String editProduct = "CALL add_product(" + code +", '" + name + "', '" + type + "', " + amount + ", " +  price + ");";
-		try {
-			dbi.executeStatement(editProduct);
-			System.out.println("Edited the product.");
-		}
-		catch (SQLException e) {
-			System.out.println("SQLException: " + e.getMessage());
-		}
+        dbi.executeStatement(editProduct);
+        System.out.println("Edited the product.");
 	}
 
 	public static void deleteAProduct() {
 		System.out.println("Enter product code to delete: ");
 		int code = scanner.nextInt();
 		String deleteProduct = "CALL delete_product(" + code + ");";
-		try {
-			dbi.executeStatement(deleteProduct);
-			System.out.println("Deleted the product.");
-		}
-		catch (SQLException e) {
-			System.out.println("SQLException: " + e.getMessage());
-		}
+        dbi.executeStatement(deleteProduct);
+        System.out.println("Deleted the product.");
 	}
 
 	public static void viewAllServices() {

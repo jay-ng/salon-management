@@ -44,8 +44,53 @@ BEGIN
 END //
 DELIMITER ;
 
+# f_appointmentCheck
+# Input: employee_id, date, startTime
+# Output: disallow bool
+DROP FUNCTION IF EXISTS f_appointmentCheck;
+DELIMITER //
+CREATE FUNCTION f_appointmentCheck(employee_id INT, date DATE, startTime TIME) RETURNS bool
+BEGIN
+	DECLARE disallow Bool;
+    SET disallow = EXISTS(
+		SELECT * 
+		FROM appointment
+        WHERE appointment.employee_id = employee_id
+			AND appointment.date = date
+            AND startTime between appointment.startTime AND appointment.endTime);
+	RETURN disallow;
+END //
+DELIMITER ;
+
+# f_getEndTime
+# Input: startTime, serviceName
+# Output: endTime
+DROP FUNCTION IF EXISTS f_getEndTime;
+DELIMITER //
+CREATE FUNCTION f_getEndTime(startTime TIME, serviceName VARCHAR(50)) RETURNS TIME
+BEGIN
+	DECLARE endTime TIME;
+    DECLARE timeRequired TIME;
+    SET timeRequired = (SELECT time FROM services WHERE name = servicename);
+    SET endTime = addtime(startTime,timeRequired);
+    RETURN endTime;
+END //
+DELIMITER ;
+
+# f_getToday
+# Input:
+# Output: date
+DROP FUNCTION IF EXISTS f_getToday;
+DELIMITER //
+CREATE FUNCTION f_getToday() RETURNS DATE
+BEGIN
+	RETURN DATE_FORMAT(sysdate(),'%Y-%m-%d');
+END //
+DELIMITER ;
 
 -- Testing Functions
 SELECT f_loginCheck('jayng','8d969eef6ecad3c29a3a629280e686cf0c3f5d5a86aff3ca12020c923adc6c92');
 SELECT f_getEID('janed','8d969eef6ecad3c29a3a629280e686cf0c3f5d5a86aff3ca12020c923adc6c92');
 SELECT f_getEmployeeType('jayng','8d969eef6ecad3c29a3a629280e686cf0c3f5d5a86aff3ca12020c923adc6c92');
+SELECT f_appointmentCheck(1,'2017-05-04','09:00');
+SELECT f_getEndTime('09:30','Highlight');
