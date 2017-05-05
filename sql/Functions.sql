@@ -101,6 +101,23 @@ BEGIN
 END //
 DELIMITER ;
 
+# f_checkStock
+# Input: product_id, amount
+# Output: Bool
+DROP FUNCTION IF EXISTS f_checkStock;
+DELIMITER //
+CREATE FUNCTION f_checkStock(product_id INT, amount INT) RETURNS bool
+BEGIN
+	DECLARE sufficient Bool DEFAULT False;
+    DECLARE currentAmount INT;
+    SET currentAmount = (SELECT product.amount FROM product WHERE product.product_code = product_id);
+    IF currentAmount > amount THEN 
+		SET sufficient = True;
+    END IF ;
+	RETURN sufficient;
+END //
+DELIMITER ;
+
 -- Testing Functions
 SELECT f_loginCheck('jayng','8d969eef6ecad3c29a3a629280e686cf0c3f5d5a86aff3ca12020c923adc6c92');
 SELECT f_getEID('janed','8d969eef6ecad3c29a3a629280e686cf0c3f5d5a86aff3ca12020c923adc6c92');

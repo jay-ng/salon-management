@@ -473,6 +473,7 @@ public class Main {
 		System.out.println("2. Place an order");
 		System.out.println("3. Edit an order");
 		System.out.println("4. Cancel an order");
+		System.out.println("5. View stocks");
 		System.out.println("0. Back");
 		System.out.println();
 		System.out.print("- Choice: ");
@@ -494,6 +495,9 @@ public class Main {
 				cancelOrder();
 				presentOrderOption();
 				break;
+			case 5:
+				viewAllProduct();
+				presentOrderOption();
 			case 0:
 				presentOption();
 				break;
@@ -934,10 +938,22 @@ public class Main {
 		
 		System.out.println("Enter amount: ");
 		int amount = Utils.getInput();
-		
-		String placeOrder = "CALL place_order('" + name + "', '" + phone + "', " + id +", "+ product+ ", "+amount + ");";
-		dbi.executeStatement(placeOrder);
-		System.out.println("Order placed.");
+		String checkStockSQL = "SELECT f_checkStock(" + id + ", " + amount + ");";
+		boolean haveStock = false;
+		try {
+			ResultSet rsStock = dbi.executeStatement(checkStockSQL);
+			rsStock.next();
+			haveStock = rsStock.getBoolean(1);
+			if (haveStock) {
+				String placeOrder = "CALL place_order('" + name + "', '" + phone + "', " + id +", "+ product+ ", "+amount + ");";
+				dbi.executeStatement(placeOrder);
+				System.out.println("Order placed.");
+			} else {
+				System.out.println("-> The shop currently does not have enough stock for this product.");
+			}
+		} catch (SQLException e) {
+			System.out.println("SQLException: "+ e.getMessage());
+		}
 	}
 	
 	public static void editOrder() {
