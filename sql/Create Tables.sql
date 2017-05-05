@@ -66,7 +66,7 @@ CREATE TABLE orders (
     employee_id INT not null references employees(employee_id),
     product_code INT not null references product(product_code),
     amount NUMERIC(1) not null,
-    primary key (orderNumber, product_code));
+    primary key (orderNumber));
 
 DROP TABLE employees;
 DROP TABLE appointment;
