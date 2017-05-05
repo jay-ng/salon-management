@@ -10,7 +10,7 @@ CREATE TABLE employees (
     
 CREATE TABLE customers (
 	name VARCHAR(50) not null,
-    phoneNumber CHAR(12) not null,
+    phoneNumber VARCHAR(50) not null,
     stylistID INT not null references employees(employee_id),
     primary key (name, phoneNumber));
 INSERT INTO customers VALUES ('Walk In', '000-000-0000',1);
@@ -62,7 +62,7 @@ CREATE TABLE orders (
 	orderNumber INT not null auto_increment,
     orderDate DATE not null,
     customer_name VARCHAR(50) not null references customers(name),
-    customer_phone CHAR(12) not null references customers(phoneNumber),
+    customer_phone VARCHAR(50) not null references customers(phoneNumber),
     employee_id INT not null references employees(employee_id),
     product_code INT not null references product(product_code),
     amount NUMERIC(1) not null,

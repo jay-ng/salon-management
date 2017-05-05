@@ -120,7 +120,7 @@ DROP PROCEDURE IF EXISTS view_all_appointments;
 DELIMITER $$
 CREATE PROCEDURE view_all_appointments()
 BEGIN
-	SELECT date as 'Date', name as 'Employee', startTime as 'Start Time', endTime as 'End Time', service as 'Service', customer_name as 'Customer'
+	SELECT date as 'Date', appointment.employee_id as 'Employee ID', name as 'Employee', startTime as 'Start Time', endTime as 'End Time', service as 'Service', customer_name as 'Customer'
     FROM appointment NATURAL JOIN (SELECT employee_id, name FROM employees) as getEmpName
     ORDER BY date;
 END $$
@@ -145,6 +145,16 @@ CREATE PROCEDURE view_emp_appointments(IN employee_id INT)
 	READS SQL DATA
 BEGIN
 	SELECT * FROM appointment WHERE appointment.employee_id = employee_id;
+END $$
+DELIMITER ;
+
+-- View an employee appointment on date
+DROP PROCEDURE IF EXISTS view_emp_appointments_date;
+DELIMITER $$
+CREATE PROCEDURE view_emp_appointments_date(IN employee_id INT, IN date DATE)
+	READS SQL DATA
+BEGIN
+	SELECT * FROM appointment WHERE appointment.employee_id = employee_id AND appointment.date = date;
 END $$
 DELIMITER ;
 

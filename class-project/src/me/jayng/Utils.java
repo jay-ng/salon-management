@@ -103,6 +103,7 @@ public class Utils {
             System.out.println("Cannot find this customer. Please make sure you have entered the right customer or consider adding this customer first.");
             System.out.print("Please enter customer name: ");
             result = scanner.next();
+            System.out.println(result);
         }
         return result;
     }

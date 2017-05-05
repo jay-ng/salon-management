@@ -3,10 +3,17 @@ DELIMITER $$
 CREATE PROCEDURE add_new_count(IN id INT(11), IN service VARCHAR(50), IN count DECIMAL(5,0))
     MODIFIES SQL DATA
 BEGIN
-INSERT INTO serviceDone
-VALUES (id, service, count);
-END$$
+	DECLARE done Bool;
+    SET done = EXISTS (SELECT * FROM serviceDone WHERE serviceDone.employee_id = id AND serviceDone.service = service);
+    IF (done) THEN 
+		CALL update_count_emp_ver(id, service);
+    ELSE 
+		INSERT INTO serviceDone VALUES (id, service, count);
+	END IF ;
+END $$
 DELIMITER ;
+
+CALL add_new_count(3, 'Male Hair Cut', 1);
 
 DROP PROCEDURE IF EXISTS update_count_emp_ver;
 DELIMITER $$

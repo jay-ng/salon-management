@@ -64,6 +64,7 @@ public class Main {
 			while (rsServices.next()) {
 				services.add(rsServices.getString(1));
 			}
+			System.out.println(customers);
 		} catch (SQLException e){
 			System.out.println("SQLException : " + e.getMessage());
 		}
@@ -305,8 +306,7 @@ public class Main {
 		} else {
 			System.out.println("1. View today appointments");
 			System.out.println("2. Add an appointment");
-			System.out.println("3. Delete an appointment");
-			System.out.println("4. Edit an appointment");
+			System.out.println("3. Edit an appointment");
 			System.out.println("0. Back");
 			System.out.println();
 			System.out.print("- Choice: ");
@@ -320,7 +320,7 @@ public class Main {
 					addAnAppointment();
 					presentAppointmentOption();
 					break;
-				case 4:
+				case 3:
 					editAnAppointment();
 					presentAppointmentOption();
 					break;
@@ -377,7 +377,8 @@ public class Main {
 			System.out.println("3. Edit a service");
 			System.out.println("4. Delete a service");
 			System.out.println("5. View employees' service counts");
-			System.out.println("6. Update employees' service counts");
+			System.out.println("6. Add employee's service count");
+			System.out.println("7. Update employees' service counts");
 			System.out.println("0. Back");
 			System.out.println();
 			System.out.print("- Choice: ");
@@ -404,6 +405,10 @@ public class Main {
 					presentServicesOption();
 					break;
 				case 6:
+					addServicesCount();
+					presentServicesOption();
+					break;
+				case 7:
 					updateServicesCount();
 					presentServicesOption();
 					break;
@@ -596,7 +601,7 @@ public class Main {
 		int id = Utils.getId();
 		System.out.println("Please enter the date of the appointment (Format YYYY-MM-DD): ");
 		String date = Utils.getDate();
-		String getEmpAptSQL = "CALL view_emp_appointments(" + id + ", '" + date +"');";
+		String getEmpAptSQL = "CALL view_emp_appointments_date(" + id + ", '" + date +"');";
         ResultSet empApt = dbi.executeStatement(getEmpAptSQL);
 		Utils.printResultSet(empApt);
 		System.out.println("Please enter start time (Format: HH:MM): ");
@@ -620,12 +625,14 @@ public class Main {
 		        System.out.println("SQLException: " + e.getMessage());
             }
         }
+        viewAllServices();
         System.out.println("Please enter service name: ");
 		String serviceName = scanner.next();
 		serviceName = Utils.tryService(services, serviceName);
+		viewAllCustomers();
 		System.out.println("Please enter customer name: ");
 		String customerName = scanner.next();
-		customerName = Utils.tryCustomer(services, customerName);
+		customerName = Utils.tryCustomer(customers, customerName);
 		String getEndTimeSQL = "SELECT f_getEndTime('" + startTime + "', '" + serviceName + "');";
 		String endTime = "";
 		try {
@@ -661,6 +668,7 @@ public class Main {
 			} catch (SQLException e) {
 				System.out.println("SQLException: " + e.getMessage());
 			}
+			System.out.println("-> Appointment is deleted.");
 		} else {
 			viewYourAppointment();
 			System.out.print("Please enter date (Format: YYYY-MM-DD): ");
@@ -679,6 +687,7 @@ public class Main {
 			} catch (SQLException e) {
 				System.out.println("SQLException: " + e.getMessage());
 			}
+			System.out.println("-> Appointment is deleted.");
 		}
 	}
 
@@ -756,10 +765,10 @@ public class Main {
 		String type = scanner.next();
 		
 		System.out.println("Enter product amount: ");
-		int amount = scanner.nextInt();
+		int amount = Utils.getInput();
 		
 		System.out.println("Enter product price: ");
-		int price = scanner.nextInt();
+		int price = Utils.getInput();
 		
 		String addProduct = "CALL add_product('" + name + "', '" + type + "', " + amount + ", " +  price + ");";
         dbi.executeStatement(addProduct);
@@ -768,7 +777,7 @@ public class Main {
 	}
 
 	public static void editAProduct() {
-		System.out.println("Edit a product.");
+		viewAllProduct();
 		System.out.println("Enter product code: ");
 		int code = Utils.getId();
 		
@@ -780,12 +789,12 @@ public class Main {
 		String type = scanner.next();
 		
 		System.out.println("Enter product new amount: ");
-		int amount = scanner.nextInt();
+		int amount = Utils.getInput();
 		
 		System.out.println("Enter product new price: ");
-		int price = scanner.nextInt();
+		int price = Utils.getInput();
 		
-		String editProduct = "CALL add_product(" + code +", '" + name + "', '" + type + "', " + amount + ", " +  price + ");";
+		String editProduct = "CALL edit_product(" + code +", '" + name + "', '" + type + "', " + amount + ", " +  price + ");";
         dbi.executeStatement(editProduct);
         System.out.println("Edited the product.");
         products.remove(oldName);
@@ -793,6 +802,7 @@ public class Main {
 	}
 
 	public static void deleteAProduct() {
+		viewAllProduct();
 		System.out.println("Enter product code to delete: ");
 		int code = Utils.getId();
 		String productNameSQL = "SELECT name FROM product WHERE product_code = " + code + ";";
@@ -833,6 +843,7 @@ public class Main {
 	}
 
 	public static void editAService() {
+		viewAllServices();
 		System.out.println("Enter service name: ");
 		String name = scanner.next();
 		name = Utils.tryService(services, name);
@@ -865,20 +876,22 @@ public class Main {
 	}
 	
 	public static void placeOrder() {
+		viewAllCustomers();
 		System.out.println("Enter customer name: ");
 		String name = scanner.next();
+		name = Utils.tryCustomer(customers, name);
 		
 		System.out.println("Enter customer's phone number: ");
-		int phone= scanner.nextInt();
-		
+		String phone= scanner.next();
+		viewAllEmployees();
 		System.out.println("Enter employee's id: ");
-		int id = scanner.nextInt();
-		
+		int id = Utils.getId();
+		viewAllProduct();
 		System.out.println("Enter product code: ");
-		int product = scanner.nextInt();
+		int product = Utils.getId();
 		
 		System.out.println("Enter amount: ");
-		int amount = scanner.nextInt();
+		int amount = Utils.getInput();
 		
 		String placeOrder = "CALL place_order('" + name + "', '" + phone + "', " + id +", "+ product+ ", "+amount + ");";
 		dbi.executeStatement(placeOrder);
@@ -886,14 +899,15 @@ public class Main {
 	}
 	
 	public static void editOrder() {
+		viewOrders();
 		System.out.println("Enter order number: ");
-		int orderNo = scanner.nextInt();
-		
+		int orderNo = Utils.getId();
+		viewAllProduct();
 		System.out.println("Enter new product code: ");
-		int product = scanner.nextInt();
+		int product = Utils.getId();
 		
 		System.out.println("Enter new amount: ");
-		int amount = scanner.nextInt();
+		int amount = Utils.getInput();
 		
 		String editOrder = "CALL edit_order(" + orderNo + ", " + product + ", " + amount + ");";
 		dbi.executeStatement(editOrder);
@@ -903,7 +917,7 @@ public class Main {
 	
 	public static void cancelOrder() {
 		System.out.println("Enter order number: ");
-		int orderNo = scanner.nextInt();
+		int orderNo = Utils.getId();
 		
 		String deleteOrder = "CALL delete_order(" + orderNo +");";
 		dbi.executeStatement(deleteOrder);
@@ -930,8 +944,9 @@ public class Main {
 		int id = Utils.getId();
 		System.out.println("Enter service name: ");
 		String service = scanner.next();
+		service = Utils.tryService(services, service);
 		System.out.println("Enter service count: ");
-		int count = scanner.nextInt();
+		int count = Utils.getInput();
 		
 		String addNewCount = "CALL add_new_count(" + id + ", '" + service + "', " + count + ");";
 		dbi.executeStatement(addNewCount);
@@ -939,14 +954,16 @@ public class Main {
 	}
 
 	public static void updateServicesCount() {
+		viewAllEmployeesServiceCounts();
 		System.out.println("Enter employee id: ");
 		int id = Utils.getId();
 		System.out.println("Enter service name: ");
 		String service = scanner.next();
+		service = Utils.tryService(services, service);
 		System.out.println("Enter new service count: ");
 		int count = Utils.getInput();
 		
-		String updateCount = "CALL update_count(" + id + ", '" + service + "', " + count + ");";
+		String updateCount = "CALL edit_count(" + id + ", '" + service + "', " + count + ");";
 		dbi.executeStatement(updateCount);
 		System.out.println("Updated count for employee " + id + ", service " + service);
 	}
@@ -954,17 +971,21 @@ public class Main {
 	//For employee
 	//Employees can only add new service with a count of 1 when it is the their first time
 	public static void empAddServiceCount() {
+		viewAllServices();
 		System.out.println("Use this if the service doesn't exist yet");
 		System.out.println("Enter service name: ");
 		String service = scanner.next();
+		service = Utils.tryService(services, service);
 		String addNewCount = "CALL add_new_count(" + eid + ", '" + service + "', " + 1 + ");";
 		dbi.executeStatement(addNewCount);
 		System.out.println("Added new count for employee " + eid);
 	}
 	//This is called when an employee finishes his/her service, thus count increases by 1
 	public static void empUpdateCount() {
+		viewAllServices();
 		System.out.println("Enter service name: ");
 		String service = scanner.next();
+		service = Utils.tryService(services, service);
 		
 		String empUpdateCount = "CALL update_count_emp_ver(" + eid + ", '" + service + "');";
 		dbi.executeStatement(empUpdateCount);
