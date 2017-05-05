@@ -49,13 +49,13 @@ INSERT INTO product VALUES(null, 'Dye A', 'Dye', 8, 30);
 INSERT INTO product VALUES(null, 'Conditioner A', 'Conditioner', 20, 15);
 
 DESCRIBE appointment;
-INSERT INTO appointment VALUES(3, '09:00', '09:30', '2017-05-10', 'Male Hair Cut', 'Customer A');
-INSERT INTO appointment VALUES(3, '10:30', '11:00', '2017-06-05', 'Male Hair Cut', 'Customer A');
-INSERT INTO appointment VALUES(4, '09:00', '10:00', '2017-05-10', 'Female Hair Cut', 'Customer B');
-INSERT INTO appointment VALUES(4, '10:30', '13:30', '2017-05-10', 'Single Color Dye', 'Customer D');
-INSERT INTO appointment VALUES(4, '13:30', '15:30', '2017-05-10', 'Highlight', 'Customer C');
-INSERT INTO appointment VALUES(1, '09:00', '11:00', date_format(sysdate(),'%Y-%m-%d'), 'Highlight', 'Customer C'); -- Test Today
-INSERT INTO appointment VALUES(2, '09:00', '11:00', date_format(sysdate(),'%Y-%m-%d'), 'Highlight', 'Customer D'); -- Test Today
+INSERT INTO appointment VALUES(3, '09:00', '09:30', '2017-05-10', 'Male Hair Cut', 'Customer A','Upcoming');
+INSERT INTO appointment VALUES(3, '10:30', '11:00', '2017-06-05', 'Male Hair Cut', 'Customer A','Upcoming');
+INSERT INTO appointment VALUES(4, '09:00', '10:00', '2017-05-10', 'Female Hair Cut', 'Customer B','Upcoming');
+INSERT INTO appointment VALUES(4, '10:30', '13:30', '2017-05-10', 'Single Color Dye', 'Customer D','Upcoming');
+INSERT INTO appointment VALUES(4, '13:30', '15:30', '2017-05-10', 'Highlight', 'Customer C','Upcoming');
+INSERT INTO appointment VALUES(1, '09:00', '11:00', date_format(sysdate(),'%Y-%m-%d'), 'Highlight', 'Customer C','Upcoming'); -- Test Today
+INSERT INTO appointment VALUES(2, '09:00', '11:00', date_format(sysdate(),'%Y-%m-%d'), 'Highlight', 'Customer D','Completed'); -- Test Today
 
 DESCRIBE orders;
 INSERT INTO orders VALUES(null, '2017-04-30', 'Customer A', '804-000-0001', 3, 1, 1);

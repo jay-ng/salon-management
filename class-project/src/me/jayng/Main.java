@@ -64,7 +64,6 @@ public class Main {
 			while (rsServices.next()) {
 				services.add(rsServices.getString(1));
 			}
-			System.out.println(customers);
 		} catch (SQLException e){
 			System.out.println("SQLException : " + e.getMessage());
 		}
@@ -271,6 +270,8 @@ public class Main {
 			System.out.println("2. Add an appointment");
 			System.out.println("3. Delete an appointment");
 			System.out.println("4. Edit an appointment");
+			System.out.println("5. Complete an appointment");
+			System.out.println("8. Set appointments as missed");
 			System.out.println("9. View all appointments");
 			System.out.println("0. Back");
 			System.out.println();
@@ -293,6 +294,14 @@ public class Main {
 					editAnAppointment();
 					presentAppointmentOption();
 					break;
+				case 5:
+					completeAnAppointment();
+					presentAppointmentOption();
+					break;
+                case 8:
+                    setAppointmentsMissed();
+                    presentAppointmentOption();
+                    break;
 				case 9:
 					viewAllAppointment();
 					presentAppointmentOption();
@@ -307,6 +316,7 @@ public class Main {
 			System.out.println("1. View today appointments");
 			System.out.println("2. Add an appointment");
 			System.out.println("3. Edit an appointment");
+			System.out.println("4. Complete your appointment");
 			System.out.println("0. Back");
 			System.out.println();
 			System.out.print("- Choice: ");
@@ -322,6 +332,10 @@ public class Main {
 					break;
 				case 3:
 					editAnAppointment();
+					presentAppointmentOption();
+					break;
+				case 4:
+					completeAnAppointment();
 					presentAppointmentOption();
 					break;
 				case 0:
@@ -750,6 +764,34 @@ public class Main {
 			}
 		}
 	}
+
+	private static void completeAnAppointment() {
+        if (isManager) {
+            viewAllAppointment();
+            System.out.print("Please enter employee id: ");
+            int id = Utils.getId();
+            System.out.print("Please enter date (Format: YYYY-MM-DD): ");
+            String date = Utils.getDate();
+            System.out.print("Please enter start time (Format: HH:MM): ");
+            String startTime = Utils.getTime();
+            String cmpAptSQL = "CALL complete_apt(" + id + ", '" + startTime + "', '" + date + "');";
+            dbi.executeStatement(cmpAptSQL);
+        } else {
+            viewYourAppointment();
+            System.out.print("Please enter date (Format: YYYY-MM-DD): ");
+            String date = Utils.getDate();
+            System.out.print("Please enter start time (Format: HH:MM): ");
+            String startTime = Utils.getTime();
+            String cmpAptSQL = "CALL complete_apt(" + eid + ", '" + startTime + "', '" + date + "');";
+            dbi.executeStatement(cmpAptSQL);
+        }
+    }
+
+    private static void setAppointmentsMissed() {
+	    String setMissedSQL = "CALL set_missed();";
+	    dbi.executeStatement(setMissedSQL);
+	    System.out.println("-> Appointments status updated");
+    }
 
 	public static void viewAllProduct() {
 		String products = "CALL view_products();";

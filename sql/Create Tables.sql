@@ -56,6 +56,7 @@ CREATE TABLE appointment (
     date DATE not null,
     service VARCHAR(50) not null references services(name),
     customer_name VARCHAR(50) not null references customers(name),
+    status VARCHAR(12),
     primary key (employee_id, startTime, date));
 
 CREATE TABLE orders (

@@ -120,7 +120,7 @@ DROP PROCEDURE IF EXISTS view_all_appointments;
 DELIMITER $$
 CREATE PROCEDURE view_all_appointments()
 BEGIN
-	SELECT date as 'Date', appointment.employee_id as 'Employee ID', name as 'Employee', startTime as 'Start Time', endTime as 'End Time', service as 'Service', customer_name as 'Customer'
+	SELECT date as 'Date', appointment.employee_id as 'Employee ID', name as 'Employee', startTime as 'Start Time', endTime as 'End Time', service as 'Service', customer_name as 'Customer', status as 'Status'
     FROM appointment NATURAL JOIN (SELECT employee_id, name FROM employees) as getEmpName
     ORDER BY date;
 END $$
@@ -164,7 +164,7 @@ DELIMITER $$
 CREATE PROCEDURE add_emp_appointment(IN employee_id INT, IN startTime TIME, IN endTime TIME, IN date DATE, IN service VARCHAR(50), IN customer_name VARCHAR(50))
 	MODIFIES SQL DATA
 BEGIN
-	INSERT INTO appointment VALUES (employee_id, startTime, endTime, date, service, customer_name);
+	INSERT INTO appointment VALUES (employee_id, startTime, endTime, date, service, customer_name, 'Upcoming');
 END $$
 DELIMITER ;
 
@@ -189,6 +189,30 @@ BEGIN
 	UPDATE appointment
     SET appointment.employee_id = employee_id, appointment.startTime = startTime, appointment.endTime = endTime, appointment.date = date, appointment.service = serviceName, appointment.customer_name = customerName
     WHERE appointment.employee_id = old_empid AND appointment.startTime = old_startTime AND appointment.date = old_date;
+END $$
+DELIMITER ;
+
+-- Complete an appoinment
+DROP PROCEDURE IF EXISTS complete_apt;
+DELIMITER $$
+CREATE PROCEDURE complete_apt(IN emp_id INT, IN startTime TIME, IN date DATE)
+	MODIFIES SQL DATA
+BEGIN
+	UPDATE appointment
+    SET status = 'Completed'
+    WHERE appointment.employee_id = emp_id AND appointment.startTime = startTime AND appointment.date = date;
+END $$
+DELIMITER ;
+
+-- Set missed
+DROP PROCEDURE IF EXISTS set_missed;
+DELIMITER $$
+CREATE PROCEDURE set_missed()
+	MODIFIES SQL DATA
+BEGIN
+	UPDATE appointment
+    SET status = 'Missed'
+    WHERE appointment.date < sysdate() AND appointment.endTime < current_time() AND (status = 'Upcoming' OR status = 'upcoming');
 END $$
 DELIMITER ;
 
