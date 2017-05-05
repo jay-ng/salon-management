@@ -94,9 +94,11 @@ public class Main {
     	if (isManager) {
 			System.out.println("1. Manage Employees");
 			System.out.println("2. Manage Appointments");
-			System.out.println("3. Manage Products and Orders");
+			System.out.println("3. Manage Products");
 			System.out.println("4. View Customers");
 			System.out.println("5. Services");
+			System.out.println("6. Orders");
+			System.out.println("7. End Period.");
 			System.out.println("0. Exit");
 			System.out.println();
 			System.out.print("- Choice: ");
@@ -120,6 +122,20 @@ public class Main {
 				case 5:
 					presentServicesOption();
 					break;
+				case 6:
+					presentOrderOption();
+					break;
+				case 7:
+					System.out.print("WARNING: This will update YearToDatePay and reset all service counts. Continue? (Y/N)");
+					String userInput = scanner.next();
+					if (userInput.equalsIgnoreCase("Y")) {
+						endPeriod();
+						presentOption;
+					}
+					else {
+						presentOption;
+					}
+					break;
 				case 0:
 					System.exit(1);
 				default:
@@ -131,6 +147,7 @@ public class Main {
 			System.out.println("2. Manage Appointments");
 			System.out.println("3. View your customers");
 			System.out.println("4. Services");
+			System.out.println("5. Orders");
 			System.out.println("0. Exit");
 			System.out.println();
 			System.out.print("- Choice: ");
@@ -152,6 +169,9 @@ public class Main {
 					break;
 				case 4:
 					presentServicesOption();
+					break;
+				case 5:
+					presentOrderOption();
 					break;
 				case 0:
 					System.exit(1);
@@ -356,7 +376,8 @@ public class Main {
 		} else {
 			System.out.println("1. View all offered services");
 			System.out.println("2. View your service counts");
-			System.out.println("3. Update your service counts");
+			System.out.println("3. New service count");
+			System.out.println("4. Update your service counts");
 			System.out.println("0. Back");
 			System.out.println();
 			System.out.print("- Choice: ");
@@ -371,6 +392,10 @@ public class Main {
 					presentServicesOption();
 					break;
 				case 3:
+					empAddServiceCount();
+					presentServicesOption();
+					break;	
+				case 4:
 					empUpdateCount();
 					presentServicesOption();
 					break;
@@ -383,6 +408,41 @@ public class Main {
 		}
 	}
 
+	public static void presentOrderOption() {
+	
+		System.out.println("1. View all orders");
+		System.out.println("2. Place an order");
+		System.out.println("3. Edit an order");
+		System.out.println("4. Cancel an order");
+		System.out.println("0. Back");
+		System.out.println();
+		System.out.print("- Choice: ");
+		int option = Utils.getInput();
+		switch (option) {
+			case 1:
+				viewOrders();
+				presentOrderOption();
+				break;
+			case 2:
+				placeOrder();
+				presentOrderOption();
+				break;
+			case 3:
+				editOrder();
+				presentOrderOption();
+				break;
+			case 4:
+				cancelOrder();
+				presentOrderOption();
+				break;
+			case 0:
+				presentOption();
+				break;
+			default:
+				System.out.println("-> Invalid Option.");
+		}
+		
+	}
 	//Manager's view
 	public static void viewAllEmployees() {
 		String viewEmployees = "CALL view_all_emp();";
@@ -636,8 +696,6 @@ public class Main {
 	}
 
 	public static void addAProduct() {
-		System.out.println("Enter product code: ");
-		int code = scanner.nextInt();
 		
 		System.out.println("Enter product name: ");
 		String name = scanner.next();
@@ -651,7 +709,7 @@ public class Main {
 		System.out.println("Enter product price: ");
 		int price = scanner.nextInt();
 		
-		String addProduct = "CALL add_product(" + code +", '" + name + "', '" + type + "', " + amount + ", " +  price + ");";
+		String addProduct = "CALL add_product('" + name + "', '" + type + "', " + amount + ", " +  price + ");";
         dbi.executeStatement(addProduct);
         System.out.println("Product added.");
 		
@@ -730,21 +788,57 @@ public class Main {
 		dbi.executeStatement(deleteService);
 		System.out.println("Service deleted");
 	}
-	
+	// View all orders
 	public static void viewOrders() {
-		//TO DO: implement method
+		String allOrders = "CALL view_all_orders();";
+		ResultSet rsView = dbi.executeStatement(allOrders);
+		utils.printResultSet(rsView);
 	}
 	
 	public static void placeOrder() {
-		//TO DO: implement method
+		System.out.println("Enter customer name: ");
+		String name = scanner.next();
+		
+		System.out.println("Enter customer's phone number: ");
+		int phone= scanner.nextInt();
+		
+		System.out.println("Enter employee's id: ");
+		int id = scanner.nextInt();
+		
+		System.out.println("Enter product code: ");
+		int product = scanner.nextInt();
+		
+		System.out.println("Enter amount: ");
+		int amount = scanner.nextInt();
+		
+		String placeOrder = "CALL place_order('" + name + "', '" + phone + "', " + id +", "+ product+ ", "+amount + ");";
+		dbi.executeStatement(placeOrder);
+		System.out.println("Order placed.");
 	}
 	
 	public static void editOrder() {
-		//TO DO: implement method
+		System.out.println("Enter order number: ");
+		int orderNo = scanner.nextInt();
+		
+		System.out.println("Enter new product code: ");
+		int product = scanner.nextInt();
+		
+		System.out.println("Enter new amount: ");
+		int amount = scanner.nextInt();
+		
+		String editOrder = "CALL edit_order(" + orderNo + ", " + product + ", " + amount + ");";
+		dbi.executeStatement(editOrder);
+		System.out.println("Order was changed.");
+				
 	}
 	
 	public static void cancelOrder() {
-		//TO DO: implement method
+		System.out.println("Enter order number: ");
+		int orderNo = scanner.nextInt();
+		
+		String deleteOrder = "CALL delete_order(" + orderNo +");";
+		dbi.executeStatement(deleteOrder);
+		System.out.println("Order was cancelled.");
 	}
 	
 	//For manager
@@ -791,6 +885,7 @@ public class Main {
 	//For employee
 	//Employees can only add new service with a count of 1 when it is the their first time
 	public static void empAddServiceCount() {
+		System.out.println("Use this if the service doesn't exist yet");
 		System.out.println("Enter service name: ");
 		String service = scanner.next();
 		String addNewCount = "CALL add_new_count(" + eid + ", '" + service + "', " + 1 + ");";
@@ -805,5 +900,13 @@ public class Main {
 		String empUpdateCount = "CALL update_count_emp_ver(" + eid + ", '" + service + "');";
 		dbi.executeStatement(empUpdateCount);
 		System.out.println("Updated count for employee " + eid + ", service " + service);
+	}
+	
+	//Manager only
+	//End the period, calculate year to date pay and reset counts
+	public static void endThePeriod() {
+		String endPeriod = "CALL end_period();";
+		dbi.executeStatement(endPeriod);
+		System.out.println("Updated yearToDatePay, reset all service counts and periodPay");
 	}
 }
