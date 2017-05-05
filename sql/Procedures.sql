@@ -1,3 +1,44 @@
+-- Application Level Setup Procedures
+DROP PROCEDURE IF EXISTS get_employees;
+DELIMITER $$
+CREATE PROCEDURE get_employees()
+	READS SQL DATA
+BEGIN
+	SELECT employees.name as 'Employee Name'
+    FROM employees;
+END $$
+DELIMiTER ;
+
+DROP PROCEDURE IF EXISTS get_customers;
+DELIMITER $$
+CREATE PROCEDURE get_customers()
+	READS SQL DATA
+BEGIN
+	SELECT name as 'Customer Name'
+    FROM customers;
+END $$
+DELIMiTER ;
+
+DROP PROCEDURE IF EXISTS get_product;
+DELIMITER $$
+CREATE PROCEDURE get_product()
+	READS SQL DATA
+BEGIN
+	SELECT name as 'Product Name'
+    FROM product;
+END $$
+DELIMiTER ;
+
+DROP PROCEDURE IF EXISTS get_services;
+DELIMITER $$
+CREATE PROCEDURE get_services()
+	READS SQL DATA
+BEGIN
+	SELECT name as 'Service Name'
+    FROM services;
+END $$
+DELIMiTER ;
+
 -- Deleting an employee
 DROP PROCEDURE IF EXISTS delete_an_emp;
 DELIMITER $$
@@ -141,10 +182,15 @@ BEGIN
 END $$
 DELIMITER ;
 
+# Testing Procedures
+CALL get_employees();
+CALL get_customers();
+CALL get_product();
+CALL get_services();
 CALL view_all_emp;
 CALL view_all_appointments;
 CALL view_today_appointments;
 CALL view_emp_appointments(1,'2017-05-03');
 CALL insert_emp('Huy Nguyen', '19920118', '555-55-5555', '312 Broad St.', '123-123-1234', 'huyng', '8d969eef6ecad3c29a3a629280e686cf0c3f5d5a86aff3ca12020c923adc6c92',1);
 CALL delete_an_emp(5);
-CALL update_emp_appointment(3,
+CALL update_emp_appointment(3,'09:00','2017-05-10',3,'16:00','2017-05-04','Male Hair Cut','Customer A');

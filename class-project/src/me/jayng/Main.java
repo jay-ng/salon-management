@@ -1,32 +1,73 @@
 package me.jayng;
 
-import java.sql.Connection;
 import java.sql.ResultSet;
 import java.sql.SQLException;
+import java.util.ArrayList;
 import java.util.Scanner;
 
 public class Main {
 
-    public static Utils utils;
-    public static DBI dbi = DBI.getInstance();
-    public static Connection conn;
-    public static Scanner scanner = new Scanner(System.in).useDelimiter("\\n");
-	static int eid;
-	static boolean isManager = false;
-	static String today = "";
+    private static DBI dbi = DBI.getInstance();
+    private static Scanner scanner = new Scanner(System.in).useDelimiter("\\n");
+	private static int eid = -1;
+	private static boolean isManager = false;
+	private static String today = "";
+	private static ArrayList<String> customers = new ArrayList<>();
+	private static ArrayList<String> products = new ArrayList<>();
+	private static ArrayList<String> services = new ArrayList<>();
+	private static ArrayList<String> employees = new ArrayList<>();
 
     public static void main(String[] args) {
 	// write your code here
         printHeading();
+        setup();
         login();
         presentOption();
+
     }
 
-    public static void printHeading() {
+    private static void printHeading() {
         System.out.println("--------------------------------------------------");
         System.out.println("------ Salon Software by Huy Nguyen, Man Vu ------");
         System.out.println("--------------------------------------------------");
     }
+
+    private static void setup() {
+    	// Clear
+		customers.clear();
+		products.clear();
+		services.clear();
+		employees.clear();
+
+		// Get Customers Statement
+		String customerSQL = "CALL get_customers();";
+		// Get Product Statement
+		String productSQL = "CALL get_product();";
+		// Get Employees Statement
+		String employeesSQL = "CALL get_employees();";
+		// Execute Statements
+		String servicesSQL = "CALL get_services();";
+		try {
+			ResultSet rsCustomer = dbi.executeStatement(customerSQL);
+			ResultSet rsProduct = dbi.executeStatement(productSQL);
+			ResultSet rsEmployees = dbi.executeStatement(employeesSQL);
+			ResultSet rsServices = dbi.executeStatement(servicesSQL);
+			while (rsCustomer.next()) {
+				customers.add(rsCustomer.getString(1));
+			}
+			while (rsEmployees.next()) {
+				employees.add(rsEmployees.getString(1));
+			}
+			while (rsProduct.next()) {
+				products.add(rsProduct.getString(1));
+			}
+			while (rsServices.next()) {
+				services.add(rsServices.getString(1));
+			}
+		} catch (SQLException e){
+			System.out.println("SQLException : " + e.getMessage());
+		}
+	}
 
     public static void login() {
         Boolean success = false;
@@ -41,7 +82,7 @@ public class Main {
             System.out.println();
 
             // Get String Digest with SHA256
-            String digest = utils.sha256(password);
+            String digest = Utils.sha256(password);
 
             // Construct Query for login process
             // Function return 1|0 (true|false)
@@ -172,7 +213,6 @@ public class Main {
 			System.out.println();
 			System.out.print("- Choice: ");
 			int option = Utils.getInput();
-			// To do: add sql statements to view, add, delete
 			switch (option) {
 				case 1:
 					//View all employees
@@ -190,7 +230,7 @@ public class Main {
 				case 3:
 					//Delete an employee
 					System.out.println("Enter the id of the employee you want to delete: ");
-					int dID = scanner.nextInt();
+					int dID = Utils.getId();
 					deleteAnEmployee(dID);
 					presentEmployeeOption();
 					break;
@@ -434,13 +474,24 @@ public class Main {
 
         dbi.executeStatement(insert);
         System.out.println("-> Inserted an employee");
+        employees.add(name);
 	}
 
 	//Delete an employee
 	public static void deleteAnEmployee(int dID) {
+		String getDIDName = "SELECT name FROM employees WHERE employee_id = " + dID + ";";
+		String name = "";
+		try {
+			ResultSet rsName = dbi.executeStatement(getDIDName);
+			rsName.next();
+			name = rsName.getString(1);
+		} catch (SQLException e) {
+			System.out.println("SQLException: " + e.getMessage());
+		}
 		String deleteEmp = "CALL delete_an_emp(" + dID + ");";
         dbi.executeStatement(deleteEmp);
         System.out.println("-> Deleted employee "+ dID);
+        employees.remove(name);
 	}
 	
 	// View all customers
@@ -511,8 +562,10 @@ public class Main {
         }
         System.out.println("Please enter service name: ");
 		String serviceName = scanner.next();
+		serviceName = Utils.tryService(services, serviceName);
 		System.out.println("Please enter customer name: ");
 		String customerName = scanner.next();
+		customerName = Utils.tryCustomer(services, customerName);
 		String getEndTimeSQL = "SELECT f_getEndTime('" + startTime + "', '" + serviceName + "');";
 		String endTime = "";
 		try {
@@ -584,7 +637,7 @@ public class Main {
 				delAptCheck.next();
 				boolean exists = delAptCheck.getBoolean(1);
 				if (exists) {
-					System.out.print("Please enter new employee for this appointment, enter the same one if not changed: ");
+					System.out.print("Please enter new employee id for this appointment, enter the same one if not changed: ");
 					int newId = Utils.getId();
 					System.out.print("Please enter new date, enter the same if not changed: ");
 					String newDate = Utils.getDate();
@@ -632,12 +685,12 @@ public class Main {
 	public static void viewAllProduct() {
 		String products = "CALL view_products();";
 		ResultSet rsView = dbi.executeStatement(products);
-		utils.printResultSet(rsView);
+		Utils.printResultSet(rsView);
 	}
 
 	public static void addAProduct() {
-		System.out.println("Enter product code: ");
-		int code = scanner.nextInt();
+		System.out.println("Enter product code: "); // auto increment
+		int code = Utils.getId();
 		
 		System.out.println("Enter product name: ");
 		String name = scanner.next();
@@ -654,16 +707,17 @@ public class Main {
 		String addProduct = "CALL add_product(" + code +", '" + name + "', '" + type + "', " + amount + ", " +  price + ");";
         dbi.executeStatement(addProduct);
         System.out.println("Product added.");
-		
+		products.add(name);
 	}
 
 	public static void editAProduct() {
 		System.out.println("Edit a product.");
 		System.out.println("Enter product code: ");
-		int code = scanner.nextInt();
+		int code = Utils.getId();
 		
 		System.out.println("Enter product new name: ");
 		String name = scanner.next();
+		String oldName = name;
 		
 		System.out.println("Enter product new type: ");
 		String type = scanner.next();
@@ -677,20 +731,32 @@ public class Main {
 		String editProduct = "CALL add_product(" + code +", '" + name + "', '" + type + "', " + amount + ", " +  price + ");";
         dbi.executeStatement(editProduct);
         System.out.println("Edited the product.");
+        products.remove(oldName);
+        products.add(name);
 	}
 
 	public static void deleteAProduct() {
 		System.out.println("Enter product code to delete: ");
-		int code = scanner.nextInt();
+		int code = Utils.getId();
+		String productNameSQL = "SELECT name FROM product WHERE product_code = " + code + ";";
+		String name = "";
+		try {
+			ResultSet rsProduct = dbi.executeStatement(productNameSQL);
+			rsProduct.next();
+			name = rsProduct.getString(1);
+		} catch (SQLException e) {
+			System.out.println("SQLException: " + e.getMessage());
+		}
 		String deleteProduct = "CALL delete_product(" + code + ");";
         dbi.executeStatement(deleteProduct);
         System.out.println("Deleted the product.");
+        products.remove(name);
 	}
 
 	public static void viewAllServices() {
 		String allServices = "CALL view_all_services();";
 		ResultSet rsView = dbi.executeStatement(allServices);
-		utils.printResultSet(rsView);
+		Utils.printResultSet(rsView);
 	}
 
 	public static void addAService() {
@@ -698,7 +764,7 @@ public class Main {
 		String name = scanner.next();
 		
 		System.out.println("Enter service price: ");
-		int price = scanner.nextInt();
+		int price = Utils.getInput();
 		
 		System.out.println("Enter service duration (Format HH:MM): ");
 		String time = Utils.getTime();
@@ -706,14 +772,16 @@ public class Main {
 		String addService = "CALL add_service('" + name + "', " + price + ", '" + time + "');";
 		dbi.executeStatement(addService);
 		System.out.println("Service added.");
+		services.add(name);
 	}
 
 	public static void editAService() {
 		System.out.println("Enter service name: ");
 		String name = scanner.next();
+		name = Utils.tryService(services, name);
 		
 		System.out.println("Enter new service price: ");
-		int price = scanner.nextInt();
+		int price = Utils.getInput();
 		
 		System.out.println("Enter new service duration (format HH:MM): ");
 		String time = Utils.getTime();
@@ -726,9 +794,11 @@ public class Main {
 	public static void deleteAService() {
 		System.out.println("Enter service name you want to remove:");
 		String rm = scanner.next();
+		rm = Utils.tryService(services, rm);
 		String deleteService = "CALL delete_a_service('" + rm + "');";
 		dbi.executeStatement(deleteService);
 		System.out.println("Service deleted");
+		services.remove(rm);
 	}
 	
 	public static void viewOrders() {
@@ -751,14 +821,14 @@ public class Main {
 	public static void viewAllEmployeesServiceCounts() {
 		String empSevCount = "CALL view_all_employees_service_counts();";
 		ResultSet rsView = dbi.executeStatement(empSevCount);
-		utils.printResultSet(rsView);
+		Utils.printResultSet(rsView);
 	}
 
 	//For employee
 	public static void viewPersonalServiceCounts(int id) {
 		String pSevCount = "CALL view_personal_counts(" + id + ");";
 		ResultSet rsView = dbi.executeStatement(pSevCount);
-		utils.printResultSet(rsView);
+		Utils.printResultSet(rsView);
 	}
 	
 	//For manager
@@ -781,7 +851,7 @@ public class Main {
 		System.out.println("Enter service name: ");
 		String service = scanner.next();
 		System.out.println("Enter new service count: ");
-		int count = scanner.nextInt();
+		int count = Utils.getInput();
 		
 		String updateCount = "CALL update_count(" + id + ", '" + service + "', " + count + ");";
 		dbi.executeStatement(updateCount);

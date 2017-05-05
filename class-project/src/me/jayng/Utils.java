@@ -6,14 +6,10 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Scanner;
 import java.util.StringJoiner;
-import java.util.regex.Pattern;
 
-/**
- * Created by Jay Ng on 4/25/2017.
- */
 public class Utils {
 
-    public static Scanner scanner = new Scanner(System.in);
+    public static Scanner scanner = new Scanner(System.in).useDelimiter("\\n");
 
     public static String sha256(String base) {
         try{
@@ -99,6 +95,46 @@ public class Utils {
             inputMismatch = false;
         }
         return time;
+    }
+
+    public static String tryCustomer(ArrayList<String> customers, String name) {
+        String result = name;
+        while (!customers.contains(result)) {
+            System.out.println("Cannot find this customer. Please make sure you have entered the right customer or consider adding this customer first.");
+            System.out.print("Please enter customer name: ");
+            result = scanner.next();
+        }
+        return result;
+    }
+
+    public static String tryEmployee(ArrayList<String> employees, String name) {
+        String result = name;
+        while (!employees.contains(result)) {
+            System.out.println("Cannot find this employee. Please make sure you have entered the right employee or contact a manager.");
+            System.out.print("Please enter employee name: ");
+            result = scanner.next();
+        }
+        return result;
+    }
+
+    public static String tryService(ArrayList<String> services, String name) {
+        String result = name;
+        while (!services.contains(result)) {
+            System.out.println("Cannot find this services. Please make sure you have entered the right service name or contact a manager.");
+            System.out.print("Please enter service name: ");
+            result = scanner.next();
+        }
+        return result;
+    }
+
+    public static String tryProduct(ArrayList<String> products, String name) {
+        String result = name;
+        while (!products.contains(result)) {
+            System.out.println("Cannot find this product. Please make sure you have entered the right product or contact a manager.");
+            System.out.print("Please enter product name: ");
+            result = scanner.next();
+        }
+        return result;
     }
 
 
